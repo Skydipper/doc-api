@@ -1,0 +1,164 @@
+# Query
+
+In order to retrieve data from the datasets it is possible to send queries to the API using the SQL or Feature Service languages.
+
+Two different endpoints are provided (under the dataset path and a generic one) and the sql query can be provided via query parameters or in the body of a POST request.
+
+```shell
+curl -i -H 'Authorization: Bearer your-token>' -H 'Content-Type: application/json' -XPOST 'http://api.skydipper.com/v1/query/<dataset_id>/' -d '{
+    "sql": "SELECT * FROM <dataset_id> limit 10"
+}
+'
+```
+
+```shell
+curl -i -XGET http\://api.skydipper.com/v1/query\?sql\=SELECT\ \*\ from\ <dataset.slug>
+```
+
+<aside class="notice">
+While we aim to make our query interface as broad and transparent as possible, some of the querying options described 
+below will not be available for specific dataset providers, depending on this API's implementation or limitations on the
+actual data provider's side.
+</aside>
+
+## Select clause
+
+The `SELECT` part of the queries supports naming columns, **alias**, **math operations**, **DISTINCT**, **COUNT**, **SQL functions** and **PostGIS functions**
+
+```sql
+SELECT * FROM table
+SELECT count(*) FROM table
+SELECT a, b FROM table
+SELECT a, count(*) FROM table
+
+SELECT sum(int) FROM table
+SELECT avg(int) FROM table
+SELECT max(int) FROM table
+SELECT min(int) FROM table
+SELECT min(int) as minimum FROM table
+
+SELECT ST_valueCount(rast, 1, true) FROM table
+```
+
+## From clause
+
+It is possible to refer to a dataset by using its **table name**, **slug** or **id**. 
+
+```sql
+SELECT * FROM <dataset.tableName>
+SELECT * FROM <dataset.slug>
+SELECT * FROM <dataset.id>
+```
+
+## Where clause
+
+```sql
+SELECT * FROM table WHERE a > 2
+SELECT * FROM table WHERE a = 2
+SELECT * FROM table WHERE a < 2
+SELECT * FROM table WHERE a >= 2
+SELECT * FROM table WHERE a = 2 and b < 2
+SELECT * FROM table WHERE text like 'a%'
+SELECT * FROM table WHERE st_intersects(st_setsrid(st_geomfromgeojson('{}'), 4326), the_geom)
+SELECT * FROM table WHERE data BETWEEN 1 AND 3
+```
+
+## Group by clause
+
+It is possible to group results by **column name**, **SQL functions** and **PostGIS functions**.
+Special grouping operations are available for document-type datasets (CSV and JSON) - see [this link](https://github.com/NLPchina/elasticsearch-sql/tree/5.5.2.0#beyond-sql) for more info.
+
+
+```sql
+SELECT * FROM tablename GROUP BY columnOne
+SELECT * FROM tablename GROUP BY columnOne, columnTwo
+SELECT * FROM tablename GROUP BY ST_GeoHash(the_geom_point,8)
+
+SELECT a, count(int) FROM table GROUP BY a
+SELECT count(*) FROM tablename GROUP BY ST_GeoHash(the_geom, 8)
+```
+
+
+```sql
+/* Only supported in document-type datasets - see https://github.com/NLPchina/elasticsearch-sql/tree/5.5.2.0#beyond-sql for full details */
+SELECT COUNT(age) FROM tablename GROUP BY range(age, 20,25,30,35,40) 
+SELECT online FROM online GROUP BY date_histogram(field='insert_time','interval'='1d')
+SELECT online FROM online GROUP BY date_range(field='insert_time','format'='yyyy-MM-dd' ,'2014-08-18','2014-08-17','now-8d','now-7d','now-6d','now')
+```
+
+## Order by clause
+
+It is possible to order results by **column name**, **SQL functions** and **PostGIS functions**
+
+
+## Limit and offset clause
+
+You can specify `limit` and `offset` clauses
+
+```sql
+SELECT * FROM table limit=20
+SELECT * FROM table limit=20 offset 10
+```
+
+
+## Raster queries available
+
+```sql
+SELECT ST_METADATA(rast) FROM table
+SELECT ST_BANDMETADATA(rast, occurrence) FROM table
+SELECT ST_SUMMARYSTATS() FROM table
+SELECT ST_HISTOGRAM(rast, 1, auto, true) FROM table
+SELECT ST_valueCount(rast, 1, true) FROM table
+```
+
+## Freeze query
+
+It is possible generate a json file in a bucket of the sql result. You only need send a query param freeze with value true and you will obtain the url of the json file.
+
+<aside class="notice">
+    This is an authenticated feature!
+</aside>
+
+```shell
+curl -i -XGET http\://api.skydipper.com/v1/query\?sql\=SELECT\ \*\ from\ <dataset.slug>&freeze=true
+```
+
+## Download
+
+You can download the result of a query using the `download` endpoint. 
+
+<aside class="warning">
+    <ul>
+    This endpoint is not supported for all the dataset providers. The following dataset connector provide support for downloads:
+        <li>Google Earth Engine</li>
+        <li>Document</li>
+        <li>Carto</li>
+        <li>BigQuery</li>
+        <li>ArcGIS FeatureService</li>
+    </ul>
+</aside>
+
+```shell
+# The id of the dataset is part of the URL
+curl -XGET https://api.skydipper.com/v1/download/<dataset.id>?sql=SELECT * from <dataset.tableName>
+
+# The id of the dataset is in the FROM clause
+curl -XGET https://api.skydipper.com/v1/download?sql=SELECT * from <dataset.id>
+```
+
+There are two ways to call it:
+
+- you can either specify the id of the dataset in the URL
+- or you can pass it as part of the SQL query (in the FROM clause)
+
+You can also specify which file type you want to download (JSON or CSV), except for Google Earth Engine datasets (only JSON).
+
+<aside class="notice">
+    By default, the API will return a CSV file (JSON file for Google Earth Engine).
+</aside>
+
+```shell
+# The format is explicitly set
+curl -XGET https://api.skydipper.com/v1/download/<dataset.id>?sql=SELECT * from <dataset.tableName>&format=json
+curl -XGET https://api.skydipper.com/v1/download/<dataset.id>?sql=SELECT * from <dataset.tableName>&format=csv
+```
