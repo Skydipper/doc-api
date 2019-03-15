@@ -1,0 +1,3492 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>API Reference</title>
+
+    <style>
+      .highlight table td { padding: 5px; }
+.highlight table pre { margin: 0; }
+.highlight, .highlight .w {
+  color: #f8f8f2;
+  background-color: #272822;
+}
+.highlight .err {
+  color: #272822;
+  background-color: #f92672;
+}
+.highlight .c, .highlight .cd, .highlight .cm, .highlight .c1, .highlight .cs {
+  color: #75715e;
+}
+.highlight .cp {
+  color: #f4bf75;
+}
+.highlight .nt {
+  color: #f4bf75;
+}
+.highlight .o, .highlight .ow {
+  color: #f8f8f2;
+}
+.highlight .p, .highlight .pi {
+  color: #f8f8f2;
+}
+.highlight .gi {
+  color: #a6e22e;
+}
+.highlight .gd {
+  color: #f92672;
+}
+.highlight .gh {
+  color: #66d9ef;
+  background-color: #272822;
+  font-weight: bold;
+}
+.highlight .k, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kv {
+  color: #ae81ff;
+}
+.highlight .kc {
+  color: #fd971f;
+}
+.highlight .kt {
+  color: #fd971f;
+}
+.highlight .kd {
+  color: #fd971f;
+}
+.highlight .s, .highlight .sb, .highlight .sc, .highlight .sd, .highlight .s2, .highlight .sh, .highlight .sx, .highlight .s1 {
+  color: #a6e22e;
+}
+.highlight .sr {
+  color: #a1efe4;
+}
+.highlight .si {
+  color: #cc6633;
+}
+.highlight .se {
+  color: #cc6633;
+}
+.highlight .nn {
+  color: #f4bf75;
+}
+.highlight .nc {
+  color: #f4bf75;
+}
+.highlight .no {
+  color: #f4bf75;
+}
+.highlight .na {
+  color: #66d9ef;
+}
+.highlight .m, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .il, .highlight .mo, .highlight .mb, .highlight .mx {
+  color: #a6e22e;
+}
+.highlight .ss {
+  color: #a6e22e;
+}
+    </style>
+    <link href="stylesheets/screen.css" rel="stylesheet" media="screen" />
+    <link href="stylesheets/print.css" rel="stylesheet" media="print" />
+      <script src="javascripts/all.js"></script>
+  </head>
+
+  <body class="index " data-languages="[&quot;shell&quot;]">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="images/navbar.png" alt="Navbar" />
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+      <img src="images/logo-skydipper.png" alt="Logo skydipper" />
+        <div class="lang-selector">
+              <a href="#" data-language-name="shell">cURL</a>
+        </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <div id="toc">
+      </div>
+        <ul class="toc-footer">
+            <li><a href='https://ui.skydipper.com'>Sign Up for a Developer Key</a></li>
+            <li><a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a></li>
+        </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        <h1 id="introduction">Introduction</h1>
+
+<h1 id="welcome-to-the-skydipper-api-documentation">Welcome to the Skydipper API Documentation.</h1>
+
+          <h1 id="authentication">Authentication</h1>
+
+<p>The Skydipper API uses JWT <a href="https://tools.ietf.org/html/rfc7519">(JSON Web Tokens)</a> to identify and authenticate its users. This token must be provided inside an <code class="prettyprint">Authorization</code> header, with the form <code class="prettyprint">Bearer: &lt;token&gt;</code>.</p>
+
+<p>However, in order to perform GET requests for content that is not private, there&rsquo;s no need for any sort of authentication or token.</p>
+
+<h2 id="how-to-create-a-new-user">How to create a new user</h2>
+
+<p>To create a new user make a request like the one in the sidebar:</p>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/auth/user <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+    "email":"&lt;email&gt;",
+    "role":"&lt;role&gt;",
+    "extraUserData": {
+      "apps": [
+        "&lt;apps&gt;"
+      ]
+    }
+}'</span>
+</code></pre>
+<p>There are three allowed roles: <code class="prettyprint">USER</code>, <code class="prettyprint">MANAGER</code> and <code class="prettyprint">ADMIN</code>. The &lsquo;apps&rsquo; field only permits applications that are powered by the API: for now the only application is <code class="prettyprint">skydipper</code>, but some more will be available in the future.</p>
+
+<h2 id="how-to-generate-your-private-token">How to generate your private token</h2>
+
+<p>Endpoint for email + password based login.</p>
+<pre class="highlight shell"><code><span class="c"># Email + password based login - JSON format</span>
+curl -X POST http://api.skydipper.com/auth/login <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+    "email":"your-email@provider.com",
+    "password":"potato"
+}'</span>
+</code></pre>
+<p>Refer to <a href="#user-management">user management</a> for more information on the operations available in the Skydipper API for managing user accounts, token generation, etc.</p>
+
+          <h1 id="dataset">Dataset</h1>
+
+<h2 id="what-is-a-dataset">What is a Dataset?</h2>
+
+<p>A dataset abstracts the data that can be obtained from several sources into a common interface. There are several data providers supported in the API, and each of those has a different provider. Datasets can belong to several applications.</p>
+
+<h2 id="supported-dataset-sources">Supported dataset sources</h2>
+
+<h3 id="third-party-dataset-connectors">Third party Dataset connectors</h3>
+
+<p>For data stored on third party services.</p>
+
+<h4 id="carto">Carto</h4>
+
+<p><strong><code class="prettyprint">(connectorType: &#39;rest&#39;, provider: &#39;cartodb&#39;)</code></strong><br>
+<a href="https://www.carto.com">CARTO</a> is an open, powerful, and intuitive map platform for discovering and predicting the key insights underlying the location data in our world.</p>
+
+<h3 id="arcgis-feature-service">ArcGIS Feature service</h3>
+
+<p><strong><code class="prettyprint">(connectorType: &#39;rest&#39;, provider: &#39;featureservice&#39;)</code></strong> <br>
+<a href="https://www.arcgis.com/features/index.html">ArcGIS</a> for server is a Complete, Cloud-Based Mapping Platform.</p>
+
+<h3 id="google-earth-engine">Google Earth Engine</h3>
+
+<p><strong><code class="prettyprint">(connectorType: &#39;rest&#39;, provider: &#39;gee&#39;)</code></strong> <br>
+<a href="https://earthengine.google.com/">Google Earth Engine</a> combines a multi-petabyte catalog of satellite imagery and geospatial datasets with planetary-scale analysis capabilities and makes it available for scientists, researchers, and developers to detect changes, map trends, and quantify differences on the Earth&rsquo;s surface.</p>
+
+<h2 id="getting-all-datasets">Getting all datasets</h2>
+
+<p>This endpoint will allow to get all datasets available in the API:</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"00f2be42-1ee8-4069-a55a-16a988f2b7a0"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dataset"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Glad points"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"slug"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Glad-points-1490086842129"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"subtitle"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"application"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"data4sdgs"</span><span class="p">],</span><span class="w">
+            </span><span class="s2">"dataPath"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"attributesPath"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"connectorType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"document"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"csv"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"userId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"58333dcfd9f39b189ca44c75"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"connectorUrl"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://gfw2-data.s3.amazonaws.com/alerts-tsv/glad_headers.csv"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"tableName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"data"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pending"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"published"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"overwrite"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"verified"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"blockchain"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+            </span><span class="s2">"env"</span><span class="p">:</span><span class="w"> </span><span class="s2">"production"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"geoInfo"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"legend"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"date"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                </span><span class="s2">"region"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                </span><span class="s2">"country"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+            </span><span class="s2">"clonedHost"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+            </span><span class="s2">"errorMessage"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2017-01-13T10:45:46.368Z"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"widgetRelevantProps"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+            </span><span class="s2">"layerRelevantProps"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="s2">"links"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://api.skydipper.com/v1/dataset?page[number]=1&amp;page[size]=10"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"first"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://api.skydipper.com/v1/dataset?page[number]=1&amp;page[size]=10"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"last"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://api.skydipper.com/v1/dataset?page[number]=99&amp;page[size]=10"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"prev"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://api.skydipper.com/v1/dataset?page[number]=1&amp;page[size]=10"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"next"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://api.skydipper.com/v1/dataset?page[number]=2&amp;page[size]=10"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="s2">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"total-pages"</span><span class="p">:</span><span class="w"> </span><span class="mi">99</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"total-items"</span><span class="p">:</span><span class="w"> </span><span class="mi">990</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"size"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<h3 id="slug-amp-dataset-id">Slug &amp; dataset-id</h3>
+
+<p>Datasets have an auto-generated and unique slug and id that allows the user to get, create, update, query or clone that dataset.</p>
+
+<p>The dataset slug and the id cannot be updated even if the name changes.</p>
+
+<h3 id="error-message">Error Message</h3>
+
+<p>When a dataset is created the status is set to &ldquo;pending&rdquo; by default. Once the adapter validates the dataset, the status is changed to &ldquo;saved&rdquo;. If the validation fails, the status will be set to &ldquo;failed&rdquo; and the adapter will also set an error message indicating the reason.</p>
+
+<h3 id="filters">Filters</h3>
+
+<p>The dataset list provided by the endpoint can be filtered with the following attributes:</p>
+
+<table><thead>
+<tr>
+<th>Filter</th>
+<th>Description</th>
+<th>Accepted values</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>Allow us to filter by name</td>
+<td>any valid text</td>
+</tr>
+<tr>
+<td>type</td>
+<td>Allow us to distinguish between tabular and raster datasets</td>
+<td><code class="prettyprint">raster</code> or <code class="prettyprint">tabular</code></td>
+</tr>
+<tr>
+<td>app</td>
+<td>Aplications to which this dataset is being used</td>
+<td>Available Aplications like: <code class="prettyprint">[&quot;skydipper&quot;]</code></td>
+</tr>
+<tr>
+<td>connectorType</td>
+<td></td>
+<td><code class="prettyprint">rest</code> or <code class="prettyprint">document</code></td>
+</tr>
+<tr>
+<td>provider</td>
+<td>Dataset provider this include inner connectors and 3rd party ones</td>
+<td><a href="##supported-dataset-sources">A valid dataset provider</a></td>
+</tr>
+<tr>
+<td>userId</td>
+<td>the user who registered the dataset</td>
+<td>valid id</td>
+</tr>
+<tr>
+<td>status</td>
+<td>the internal dataset status at connection time</td>
+<td><code class="prettyprint">pending</code>, <code class="prettyprint">saved</code> or <code class="prettyprint">failed</code></td>
+</tr>
+<tr>
+<td>published</td>
+<td></td>
+<td><code class="prettyprint">true</code>or <code class="prettyprint">false</code></td>
+</tr>
+<tr>
+<td>env</td>
+<td>If the dataset is in preproduction envirenment or in production one</td>
+<td><code class="prettyprint">production</code>or <code class="prettyprint">preproduction</code></td>
+</tr>
+<tr>
+<td>overwritted</td>
+<td>If the data can be overwritten (only for being able to make dataset updates)</td>
+<td><code class="prettyprint">true</code>or <code class="prettyprint">false</code></td>
+</tr>
+<tr>
+<td>verify</td>
+<td>If this dataset contains data that is verified using blockchain</td>
+<td><code class="prettyprint">true</code>or <code class="prettyprint">false</code></td>
+</tr>
+<tr>
+<td>protected</td>
+<td>If it&rsquo;s a protected layer</td>
+<td><code class="prettyprint">true</code>or <code class="prettyprint">false</code></td>
+</tr>
+<tr>
+<td>geoInfo</td>
+<td>If it contains intersectable geographical info</td>
+<td><code class="prettyprint">true</code>or <code class="prettyprint">false</code></td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Filtering datasets</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset?name<span class="o">=</span>birds&amp;provider<span class="o">=</span>cartodb
+</code></pre>
+<blockquote>
+<p>For inclusive filtering with array props use &rsquo;@&rsquo;</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset?app<span class="o">=</span>skydipper@skydipper
+</code></pre>
+<h3 id="sorting">Sorting</h3>
+
+<h4 id="basics-of-sorting">Basics of sorting</h4>
+
+<p>The API currently supports sorting by means of the <code class="prettyprint">sort</code> parameter. </p>
+
+<blockquote>
+<p>Sorting datasets</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset?sort<span class="o">=</span>name
+</code></pre>
+<p>Multiple sorting criteria can be used, separating them by commas.</p>
+
+<blockquote>
+<p>Sorting datasets by multiple criteria</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset?sort<span class="o">=</span>name,description
+</code></pre>
+<p>You can specify the sorting order by prepending the criteria with either <code class="prettyprint">-</code> or <code class="prettyprint">+</code>. By default, <code class="prettyprint">asc</code> order is assumed.</p>
+
+<blockquote>
+<p>Explicit order of sorting</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset?sort<span class="o">=</span>-name,+description
+</code></pre>
+<h4 id="special-sorting-criteria">Special sorting criteria</h4>
+
+<p>There are four special sorting criteria:</p>
+
+<ul>
+<li><code class="prettyprint">metadata</code>: delegates sorting to the metadata component, sorting by the name field of the metadata.</li>
+<li><code class="prettyprint">most-viewed</code> delegates sorting to the graph component, sorting by the datasets that have been queried more frequently. Supports ascending/descending order.</li>
+<li><code class="prettyprint">most-favorited</code>: delegates sorting to the graph component, sorting by the datasets that have been more favorited. Supports ascending/descending order.</li>
+<li><code class="prettyprint">relevance</code>: delegates sorting to the metadata component, sorting by the datasets which metadata better match the search criteria. Can only be used in conjunction with a <code class="prettyprint">search</code> parameter. Does not support ascending order. </li>
+</ul>
+
+<p>Special search criteria must be used as sole sorting criteria, as it&rsquo;s not possible to combine any of them with any other search criteria.</p>
+
+<blockquote>
+<p>Sorting datasets with special criteria</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset?sort<span class="o">=</span>-most-favorited
+</code></pre><pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset?sort<span class="o">=</span>relevance&amp;status<span class="o">=</span>saved&amp;search<span class="o">=</span>agriculture
+</code></pre>
+<h3 id="relationships">Relationships</h3>
+
+<p>Available relationships: Any dataset relationship [&lsquo;widget&rsquo;, &#39;layer&rsquo;, &#39;vocabulary&rsquo;, &#39;metadata&rsquo;]</p>
+
+<blockquote>
+<p>Including relationships</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset?sort<span class="o">=</span>slug,-provider,userId&amp;status<span class="o">=</span>saved&amp;includes<span class="o">=</span>metadata,vocabulary,widget,layer
+</code></pre>
+<h3 id="advanced-filters">Advanced filters</h3>
+
+<p>By vocabulary-tag matching</p>
+
+<blockquote>
+<p>Matching vocabulary tags</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset?sort<span class="o">=</span>slug,-provider,userId&amp;status<span class="o">=</span>saved&amp;includes<span class="o">=</span>metadata,vocabulary,widget,layer&amp;vocabulary[legacy]<span class="o">=</span>umd
+</code></pre>
+<h3 id="pagination">Pagination</h3>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>page[size]</td>
+<td style="text-align: center">The number elements per page</td>
+<td style="text-align: right">Number</td>
+</tr>
+<tr>
+<td>page[number]</td>
+<td style="text-align: center">The page number</td>
+<td style="text-align: right">Number</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Paginating the output</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset?sort<span class="o">=</span>slug,-provider,userId&amp;status<span class="o">=</span>saved&amp;includes<span class="o">=</span>metadata,vocabulary,widget,layer&amp;vocabulary[legacy]<span class="o">=</span>threshold&amp;page[number]<span class="o">=</span>1
+curl -X GET https://api.skydipper.com/v1/dataset?sort<span class="o">=</span>slug,-provider,userId&amp;status<span class="o">=</span>saved&amp;includes<span class="o">=</span>metadata,vocabulary,widget,layer&amp;vocabulary[legacy]<span class="o">=</span>threshold&amp;page[number]<span class="o">=</span>2
+</code></pre>
+<h2 id="how-to-get-a-specific-dataset">How to get a specific dataset</h2>
+
+<blockquote>
+<p>To get a dataset:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset/51943691-eebc-4cb4-bdfb-057ad4fc2145
+</code></pre>
+<blockquote>
+<p>Response:</p>
+</blockquote>
+<pre class="highlight shell"><code><span class="o">{</span>
+    <span class="s2">"data"</span>: <span class="o">{</span>
+        <span class="s2">"id"</span>: <span class="s2">"51943691-eebc-4cb4-bdfb-057ad4fc2145"</span>,
+        <span class="s2">"type"</span>: <span class="s2">"dataset"</span>,
+        <span class="s2">"attributes"</span>: <span class="o">{</span>
+            <span class="s2">"name"</span>: <span class="s2">"Timber Production RDC (test)"</span>,
+            <span class="s2">"slug"</span>: <span class="s2">"Timber-Production-RDC-test-1490086842132"</span>,
+            <span class="s2">"type"</span>: null,
+            <span class="s2">"subtitle"</span>: null,
+            <span class="s2">"application"</span>: <span class="o">[</span><span class="s2">"forest-atlas"</span><span class="o">]</span>,
+            <span class="s2">"dataPath"</span>: null,
+            <span class="s2">"attributesPath"</span>: null,
+            <span class="s2">"connectorType"</span>: <span class="s2">"document"</span>,
+            <span class="s2">"provider"</span>: <span class="s2">"csv"</span>,
+            <span class="s2">"userId"</span>: <span class="s2">"58750a56dfc643722bdd02ab"</span>,
+            <span class="s2">"connectorUrl"</span>: <span class="s2">"http://wri-forest-atlas.s3.amazonaws.com/COD/temp/annual%20timber%20production%20DRC%20%28test%29%20-%20Sheet1.csv"</span>,
+            <span class="s2">"tableName"</span>: <span class="s2">"index_51943691eebc4cb4bdfb057ad4fc2145"</span>,
+            <span class="s2">"status"</span>: <span class="s2">"saved"</span>,
+            <span class="s2">"overwrite"</span>: <span class="nb">false</span>,
+            <span class="s2">"legend"</span>: <span class="o">{</span>
+                <span class="s2">"date"</span>: <span class="o">[</span><span class="s2">"year"</span><span class="o">]</span>,
+                <span class="s2">"region"</span>: <span class="o">[]</span>,
+                <span class="s2">"country"</span>: <span class="o">[]</span>,
+                <span class="s2">"long"</span>: <span class="s2">""</span>,
+                <span class="s2">"lat"</span>: <span class="s2">""</span>
+            <span class="o">}</span>,
+            <span class="s2">"clonedHost"</span>: <span class="o">{}</span>,
+            <span class="s2">"errorMessage"</span>: null,
+            <span class="s2">"createdAt"</span>: <span class="s2">"2017-01-25T21:48:27.535Z"</span>,
+            <span class="s2">"updatedAt"</span>: <span class="s2">"2017-01-25T21:48:28.675Z"</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+<blockquote>
+<p>To get the dataset including its relationships:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset/06c44f9a-aae7-401e-874c-de13b7764959?includes<span class="o">=</span>metadata,vocabulary,widget,layer
+</code></pre>
+<h2 id="creating-a-dataset">Creating a Dataset</h2>
+
+<p>To create a dataset, you will need an authorization token. Follow the steps of this <a href="#generate-your-own-oauth-token">guide</a> to get yours.</p>
+
+<p>To create a dataset, you need to define all of the required fields in the request body. The fields that compose a dataset are:</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+<th style="text-align: right">Values</th>
+<th style="text-align: right">Required</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td style="text-align: center">Dataset name</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any Text</td>
+<td style="text-align: right">Yes</td>
+</tr>
+<tr>
+<td>type</td>
+<td style="text-align: center">Dataset type</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any Text</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>subtitle</td>
+<td style="text-align: center">Dataset subtitle</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any Text</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>application</td>
+<td style="text-align: center">Applications the dataset belongs to</td>
+<td style="text-align: right">Array</td>
+<td style="text-align: right">Any valid application name(s)</td>
+<td style="text-align: right">Yes</td>
+</tr>
+<tr>
+<td>connectorType</td>
+<td style="text-align: center">Connector type</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">rest, document, wms</td>
+<td style="text-align: right">Yes</td>
+</tr>
+<tr>
+<td>provider</td>
+<td style="text-align: center">The connectorType provider</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">cartodb, feature service, gee</td>
+<td style="text-align: right">Yes</td>
+</tr>
+<tr>
+<td>connectorUrl</td>
+<td style="text-align: center">Url of the data source</td>
+<td style="text-align: right">Url</td>
+<td style="text-align: right">Any url</td>
+<td style="text-align: right">Yes (except for gee)</td>
+</tr>
+<tr>
+<td>tableName</td>
+<td style="text-align: center">Table name</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any valid table name</td>
+<td style="text-align: right">No (just for GEE datasets)</td>
+</tr>
+<tr>
+<td>data</td>
+<td style="text-align: center">JSON DATA only for json connector if connectorUrl not present</td>
+<td style="text-align: right">JSON</td>
+<td style="text-align: right">[{},{},{}]</td>
+<td style="text-align: right">No (just for json if connectorUrl is not present)</td>
+</tr>
+<tr>
+<td>dataPath</td>
+<td style="text-align: center">Path to the data in a json dataset</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any valid JSON key</td>
+<td style="text-align: right">No (just for json if connectorUrl is not present)</td>
+</tr>
+<tr>
+<td>dataAttributes</td>
+<td style="text-align: center">Data fields - for json connector if data present</td>
+<td style="text-align: right">Object</td>
+<td style="text-align: right">{&ldquo;key1&rdquo;: {&ldquo;type&rdquo;: &ldquo;string&rdquo;},&hellip; }</td>
+<td style="text-align: right">No (just for json if connectorUrl is not present)</td>
+</tr>
+<tr>
+<td>legend</td>
+<td style="text-align: center">Legend for dataset. Keys for special fields</td>
+<td style="text-align: right">Object</td>
+<td style="text-align: right">&ldquo;legend&rdquo;: {&ldquo;long&rdquo;: &ldquo;123&rdquo;, &ldquo;lat&rdquo;: &ldquo;123&rdquo;, &ldquo;country&rdquo;: [&ldquo;pais&rdquo;], &ldquo;region&rdquo;: [&ldquo;barrio&rdquo;], &ldquo;date&rdquo;: [&ldquo;startDate&rdquo;, &ldquo;endDate&rdquo;]}}</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>overwrite</td>
+<td style="text-align: center">It allows to overwrite dataset data</td>
+<td style="text-align: right">Boolean</td>
+<td style="text-align: right">true/false</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>published</td>
+<td style="text-align: center">To set a public or private dataset</td>
+<td style="text-align: right">Boolean</td>
+<td style="text-align: right">true/false</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>protected</td>
+<td style="text-align: center">If it&rsquo;s a protected layer (not is possible to delete if it&rsquo;s true)</td>
+<td style="text-align: right">Boolean</td>
+<td style="text-align: right">true/false</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>verified</td>
+<td style="text-align: center">To generate a verified blockchain of the dataset</td>
+<td style="text-align: right">Boolean</td>
+<td style="text-align: right">true/false</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>vocabularies</td>
+<td style="text-align: center">Cluster of tags</td>
+<td style="text-align: right">Object</td>
+<td style="text-align: right"><code class="prettyprint">{&quot;vocabularyOne&quot;: {&quot;tags&quot;: [&lt;tags&gt;]},&quot;vocabularyTwo&quot;: {&quot;tags&quot;: [&lt;tags&gt;]}}</code></td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>widgetRelevantProps</td>
+<td style="text-align: center">Group of relevant props of a widget</td>
+<td style="text-align: right">Array</td>
+<td style="text-align: right">Any Text</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>layerRelevantProps</td>
+<td style="text-align: center">Group of relevant props of a layer</td>
+<td style="text-align: right">Array</td>
+<td style="text-align: right">Any Text</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>subscribable</td>
+<td style="text-align: center">Available dataset queries for subscriptions parameters accepted: <code class="prettyprint">{{begin}}</code> for date begin and <code class="prettyprint">{{end}}</code> for date end</td>
+<td style="text-align: right">Object</td>
+<td style="text-align: right"><code class="prettyprint">{&quot; &lt;queryname&gt;&quot;: &quot;&lt;querybodytemplate&gt;&quot;}</code></td>
+<td style="text-align: right">No (just for json if connectorUrl is not present)</td>
+</tr>
+</tbody></table>
+
+<p>There are some differences between datasets types.</p>
+
+<h3 id="rest-carto-datasets">Rest-Carto datasets</h3>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/dataset <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+    "connectorType":"rest",
+    "provider":"cartodb",
+    "connectorUrl":"&lt;cartoUrl&gt;",
+    "application":[
+     "your", "apps"
+    ],
+    "name":"Example Carto Dataset"
+}'</span>
+</code></pre>
+<blockquote>
+<p>A real example:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/dataset <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+<span class="s1">'{
+    "connectorType":"rest",
+    "provider":"cartodb",
+    "connectorUrl":"https://wri-01.carto.com/tables/wdpa_protected_areas/table",
+    "application":[
+     "gfw", "forest-atlas"
+    ],
+    "name":"World Database on Protected Areas -- Global"
+}'</span>
+</code></pre>
+<aside class="notice">
+    This is an authenticated endpoint!
+</aside>
+
+<h3 id="rest-arcgis-feature-service">Rest-ArcGIS feature Service</h3>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/dataset <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+<span class="s1">'{
+    "connectorType":"rest",
+    "provider":"featureservice",
+    "connectorUrl":"https://services.arcgis.com/uDTUpUPbk8X8mXwl/arcgis/rest/services/Public_Schools_in_Onondaga_County/FeatureServer/0?f=json",
+    "application":[
+     "prep"
+    ],
+    "name":"Uncontrolled Public-Use Airports -- U.S."
+}'</span>
+</code></pre>
+<aside class="notice">
+    This is an authenticated endpoint!
+</aside>
+
+<h3 id="rest-gee">Rest-GEE</h3>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/dataset <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+<span class="s1">'{
+    "connectorType":"rest",
+    "provider":"gee",
+    "tableName": "JRC/GSW1_0/GlobalSurfaceWater"
+    "application":[
+     "skydipper"
+    ],
+    "name":"Water occurrence"
+}'</span>
+</code></pre>
+<h2 id="updating-a-dataset">Updating a Dataset</h2>
+
+<p>In order to modify the dataset, you can PATCH a request. It accepts the same parameters as the <em>create dataset</em> endpoint, and you will need an authentication token.</p>
+
+<blockquote>
+<p>An example update request:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X PATCH https://api.skydipper.com/v1/dataset/&lt;dataset-id&gt; <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span> -d <span class="se">\</span>
+<span class="s1">'{
+    "name": "Another name for the dataset"
+}'</span>
+</code></pre>
+<aside class="notice">
+    This is an authenticated endpoint!
+</aside>
+
+<h2 id="deleting-a-dataset">Deleting a Dataset</h2>
+
+<p><strong>When a dataset is deleted the user&rsquo;s applications that were present on the dataset will be removed from it. If this results in a dataset without applications, the dataset itself will be then deleted.</strong></p>
+
+<p>Datasets can be deleted either by any user with role ADMIN or by the user with role MANAGER that created them. Note that the deletion process cascades; deleting a dataset will also remove all layer, vocabularies, and metadata entities associated with it.</p>
+
+<aside class="warning">
+Deleting a dataset removes it permanently! It is recommended that you save a local copy before doing so.
+</aside>
+<pre class="highlight shell"><code>curl -X DELETE https://api.skydipper.com/v1/dataset/&lt;dataset-id&gt; <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
+-H <span class="s2">"Content-Type: application/json"</span>
+</code></pre>
+<aside class="notice">
+    This is an authenticated endpoint!
+</aside>
+
+<h2 id="cloning-a-dataset">Cloning a Dataset</h2>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/dataset/5306fd54-df71-4e20-8b34-2ff464ab28be/clone <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
+-H <span class="s2">"Content-Type: application/json"</span> -d <span class="se">\</span>
+<span class="s1">'{
+  "dataset": {
+    "datasetUrl": "/query/5306fd54-df71-4e20-8b34-2ff464ab28be?sql=select%20%2A%20from%20data%20limit%2010",
+    "application": [
+      "your",
+      "apps"
+    ]
+  }
+}'</span>
+</code></pre>
+<aside class="notice">
+    This is an authenticated endpoint!
+</aside>
+
+          <h1 id="query">Query</h1>
+
+<p>In order to retrieve data from the datasets it is possible to send queries to the API using the SQL or Feature Service languages.</p>
+
+<p>Two different endpoints are provided (under the dataset path and a generic one) and the sql query can be provided via query parameters or in the body of a POST request.</p>
+<pre class="highlight shell"><code>curl -i -H <span class="s1">'Authorization: Bearer your-token&gt;'</span> -H <span class="s1">'Content-Type: application/json'</span> -XPOST <span class="s1">'http://api.skydipper.com/v1/query/&lt;dataset_id&gt;/'</span> -d <span class="s1">'{
+    "sql": "SELECT * FROM &lt;dataset_id&gt; limit 10"
+}
+'</span>
+</code></pre><pre class="highlight shell"><code>curl -i -XGET http<span class="se">\:</span>//api.skydipper.com/v1/query<span class="se">\?</span>sql<span class="se">\=</span>SELECT<span class="se">\ \*\ </span>from<span class="se">\ </span>&lt;dataset.slug&gt;
+</code></pre>
+<aside class="notice">
+While we aim to make our query interface as broad and transparent as possible, some of the querying options described 
+below will not be available for specific dataset providers, depending on this API&rsquo;s implementation or limitations on the
+actual data provider&rsquo;s side.
+</aside>
+
+<h2 id="select-clause">Select clause</h2>
+
+<p>The <code class="prettyprint">SELECT</code> part of the queries supports naming columns, <strong>alias</strong>, <strong>math operations</strong>, <strong>DISTINCT</strong>, <strong>COUNT</strong>, <strong>SQL functions</strong> and <strong>PostGIS functions</strong></p>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+
+<span class="k">SELECT</span> <span class="k">sum</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="k">avg</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="k">max</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="k">min</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="k">min</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">as</span> <span class="n">minimum</span> <span class="k">FROM</span> <span class="k">table</span>
+
+<span class="k">SELECT</span> <span class="n">ST_valueCount</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+</code></pre>
+<h2 id="from-clause">From clause</h2>
+
+<p>It is possible to refer to a dataset by using its <strong>table name</strong>, <strong>slug</strong> or <strong>id</strong>. </p>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="p">.</span><span class="n">tableName</span><span class="o">&gt;</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="p">.</span><span class="n">slug</span><span class="o">&gt;</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="p">.</span><span class="n">id</span><span class="o">&gt;</span>
+</code></pre>
+<h2 id="where-clause">Where clause</h2>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="mi">2</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">&lt;</span> <span class="mi">2</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">&gt;=</span> <span class="mi">2</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">and</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="mi">2</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">text</span> <span class="k">like</span> <span class="s1">'a%'</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">st_intersects</span><span class="p">(</span><span class="n">st_setsrid</span><span class="p">(</span><span class="n">st_geomfromgeojson</span><span class="p">(</span><span class="s1">'{}'</span><span class="p">),</span> <span class="mi">4326</span><span class="p">),</span> <span class="n">the_geom</span><span class="p">)</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="k">data</span> <span class="k">BETWEEN</span> <span class="mi">1</span> <span class="k">AND</span> <span class="mi">3</span>
+</code></pre>
+<h2 id="group-by-clause">Group by clause</h2>
+
+<p>It is possible to group results by <strong>column name</strong>, <strong>SQL functions</strong> and <strong>PostGIS functions</strong>.
+Special grouping operations are available for document-type datasets (CSV and JSON) - see <a href="https://github.com/NLPchina/elasticsearch-sql/tree/5.5.2.0#beyond-sql">this link</a> for more info.</p>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">columnOne</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">columnOne</span><span class="p">,</span> <span class="n">columnTwo</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">ST_GeoHash</span><span class="p">(</span><span class="n">the_geom_point</span><span class="p">,</span><span class="mi">8</span><span class="p">)</span>
+
+<span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">a</span>
+<span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">ST_GeoHash</span><span class="p">(</span><span class="n">the_geom</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+</code></pre><pre class="highlight sql"><code><span class="cm">/* Only supported in document-type datasets - see https://github.com/NLPchina/elasticsearch-sql/tree/5.5.2.0#beyond-sql for full details */</span>
+<span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="n">age</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">range</span><span class="p">(</span><span class="n">age</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">35</span><span class="p">,</span><span class="mi">40</span><span class="p">)</span> 
+<span class="k">SELECT</span> <span class="n">online</span> <span class="k">FROM</span> <span class="n">online</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">date_histogram</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">'insert_time'</span><span class="p">,</span><span class="s1">'interval'</span><span class="o">=</span><span class="s1">'1d'</span><span class="p">)</span>
+<span class="k">SELECT</span> <span class="n">online</span> <span class="k">FROM</span> <span class="n">online</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">date_range</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">'insert_time'</span><span class="p">,</span><span class="s1">'format'</span><span class="o">=</span><span class="s1">'yyyy-MM-dd'</span> <span class="p">,</span><span class="s1">'2014-08-18'</span><span class="p">,</span><span class="s1">'2014-08-17'</span><span class="p">,</span><span class="s1">'now-8d'</span><span class="p">,</span><span class="s1">'now-7d'</span><span class="p">,</span><span class="s1">'now-6d'</span><span class="p">,</span><span class="s1">'now'</span><span class="p">)</span>
+</code></pre>
+<h2 id="order-by-clause">Order by clause</h2>
+
+<p>It is possible to order results by <strong>column name</strong>, <strong>SQL functions</strong> and <strong>PostGIS functions</strong></p>
+
+<h2 id="limit-and-offset-clause">Limit and offset clause</h2>
+
+<p>You can specify <code class="prettyprint">limit</code> and <code class="prettyprint">offset</code> clauses</p>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">limit</span><span class="o">=</span><span class="mi">20</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">limit</span><span class="o">=</span><span class="mi">20</span> <span class="k">offset</span> <span class="mi">10</span>
+</code></pre>
+<h2 id="raster-queries-available">Raster queries available</h2>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="n">ST_METADATA</span><span class="p">(</span><span class="n">rast</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">ST_BANDMETADATA</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="n">occurrence</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">ST_SUMMARYSTATS</span><span class="p">()</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">ST_HISTOGRAM</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">auto</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">ST_valueCount</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+</code></pre>
+<h2 id="freeze-query">Freeze query</h2>
+
+<p>It is possible generate a json file in a bucket of the sql result. You only need send a query param freeze with value true and you will obtain the url of the json file.</p>
+
+<aside class="notice">
+    This is an authenticated feature!
+</aside>
+<pre class="highlight shell"><code>curl -i -XGET http<span class="se">\:</span>//api.skydipper.com/v1/query<span class="se">\?</span>sql<span class="se">\=</span>SELECT<span class="se">\ \*\ </span>from<span class="se">\ </span>&lt;dataset.slug&gt;&amp;freeze<span class="o">=</span><span class="nb">true</span>
+</code></pre>
+<h2 id="download">Download</h2>
+
+<p>You can download the result of a query using the <code class="prettyprint">download</code> endpoint. </p>
+
+<aside class="warning">
+    <ul>
+    This endpoint is not supported for all the dataset providers. The following dataset connector provide support for downloads:
+        <li>Google Earth Engine</li>
+        <li>Document</li>
+        <li>Carto</li>
+        <li>BigQuery</li>
+        <li>ArcGIS FeatureService</li>
+    </ul>
+</aside>
+<pre class="highlight shell"><code><span class="c"># The id of the dataset is part of the URL</span>
+curl -XGET https://api.skydipper.com/v1/download/&lt;dataset.id&gt;?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.tableName&gt;
+
+<span class="c"># The id of the dataset is in the FROM clause</span>
+curl -XGET https://api.skydipper.com/v1/download?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.id&gt;
+</code></pre>
+<p>There are two ways to call it:</p>
+
+<ul>
+<li>you can either specify the id of the dataset in the URL</li>
+<li>or you can pass it as part of the SQL query (in the FROM clause)</li>
+</ul>
+
+<p>You can also specify which file type you want to download (JSON or CSV), except for Google Earth Engine datasets (only JSON).</p>
+
+<aside class="notice">
+    By default, the API will return a CSV file (JSON file for Google Earth Engine).
+</aside>
+<pre class="highlight shell"><code><span class="c"># The format is explicitly set</span>
+curl -XGET https://api.skydipper.com/v1/download/&lt;dataset.id&gt;?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.tableName&gt;&amp;format<span class="o">=</span>json
+curl -XGET https://api.skydipper.com/v1/download/&lt;dataset.id&gt;?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.tableName&gt;&amp;format<span class="o">=</span>csv
+</code></pre>
+          <h1 id="fields">Fields</h1>
+
+<h2 id="what-are-fields">What are fields?</h2>
+
+<p>Fields can be defined as the dataset properties. These fields are automatically generated when a dataset is created.</p>
+
+<h2 id="how-to-get-the-dataset-fields">How to get the dataset fields</h2>
+
+<p>Once the dataset is properly created and saved, it is possible to access to its fields as well as getting some information about them.</p>
+
+<p>To do that, it is necessary to use of the following endpoint:</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/fields/&lt;dataset-id&gt;
+</code></pre>
+<blockquote>
+<p>Real example</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/fields/1170030b-9725-4bfe-8fb4-1b0eb81020d2
+</code></pre>
+<blockquote>
+<p>Response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"tableName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"public.cait_2_0_country_ghg_emissions_toplow2011"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"cartodb_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"number"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"the_geom"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"geometry"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"the_geom_webmercator"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"geometry"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"x"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"y"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"number"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"z"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+          <h1 id="metadata">Metadata</h1>
+
+<h2 id="metadata-definition">Metadata definition</h2>
+
+<p>Metadata can be any kind of data associated to an existing resource (i.e. Dataset, Layer or Widget)</p>
+
+<p>Some fields are important to identify the entity properly; others are just optional and give extra information about it.</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>application</td>
+<td style="text-align: center">The metadata application</td>
+<td style="text-align: right">String</td>
+</tr>
+<tr>
+<td>language</td>
+<td style="text-align: center">The metadata language</td>
+<td style="text-align: right">String</td>
+</tr>
+<tr>
+<td>dataset</td>
+<td style="text-align: center">The associated dataset id to the metadata</td>
+<td style="text-align: right">String</td>
+</tr>
+<tr>
+<td>resource</td>
+<td style="text-align: center">The resource associated to the metadata</td>
+<td style="text-align: right">Object</td>
+</tr>
+<tr>
+<td>&ndash; id</td>
+<td style="text-align: center">Resource id</td>
+<td style="text-align: right">String</td>
+</tr>
+<tr>
+<td>&ndash; type</td>
+<td style="text-align: center">Resource type</td>
+<td style="text-align: right">String</td>
+</tr>
+<tr>
+<td>name</td>
+<td style="text-align: center">The metadata name</td>
+<td style="text-align: right">String</td>
+</tr>
+<tr>
+<td>description</td>
+<td style="text-align: center">The metadata description</td>
+<td style="text-align: right">String</td>
+</tr>
+<tr>
+<td>source</td>
+<td style="text-align: center">The metadata source</td>
+<td style="text-align: right">String</td>
+</tr>
+<tr>
+<td>citation</td>
+<td style="text-align: center">The metadata citation</td>
+<td style="text-align: right">String</td>
+</tr>
+<tr>
+<td>license</td>
+<td style="text-align: center">The metadata license type</td>
+<td style="text-align: right">String</td>
+</tr>
+<tr>
+<td>info</td>
+<td style="text-align: center">Some info about the metadata</td>
+<td style="text-align: right">Object</td>
+</tr>
+<tr>
+<td>units</td>
+<td style="text-align: center">Measurement units</td>
+<td style="text-align: right">Object</td>
+</tr>
+</tbody></table>
+
+<h2 id="creating-a-metadata-object">Creating a metadata object</h2>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th style="text-align: center">Required/Optional</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>application</td>
+<td style="text-align: center">required</td>
+</tr>
+<tr>
+<td>language</td>
+<td style="text-align: center">required</td>
+</tr>
+<tr>
+<td>dataset</td>
+<td style="text-align: center">required</td>
+</tr>
+<tr>
+<td>name</td>
+<td style="text-align: center">optional</td>
+</tr>
+<tr>
+<td>description</td>
+<td style="text-align: center">optional</td>
+</tr>
+<tr>
+<td>source</td>
+<td style="text-align: center">optional</td>
+</tr>
+<tr>
+<td>citation</td>
+<td style="text-align: center">optional</td>
+</tr>
+<tr>
+<td>license</td>
+<td style="text-align: center">optional</td>
+</tr>
+<tr>
+<td>info</td>
+<td style="text-align: center">optional</td>
+</tr>
+<tr>
+<td>units</td>
+<td style="text-align: center">optional</td>
+</tr>
+</tbody></table>
+
+<p>The &ldquo;application&rdquo; and &ldquo;language&rdquo; attributes are required and it is mandatory to include them in the payload.</p>
+
+<aside class="notice">
+Please, be sure that the request is properly authenticated and the current user has permission to the resource.
+If you don&rsquo;t know how to do this, please go to the <a href="#authentication">Authentication section</a>
+</aside>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/dataset/&lt;dataset-id&gt;/metadata <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "application": &lt;app&gt;,
+   "language": &lt;language&gt;
+  }'</span>
+</code></pre>
+<blockquote>
+<p>Real example</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/dataset/942b3f38-9504-4273-af51-0440170ffc86/metadata <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "application": "skydipper",
+   "language": "en"
+  }'</span>
+</code></pre>
+<blockquote>
+<p>Response: 200 OK HTTP RESPONSE + JSON-API-LIKE BODY</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"942b3f38-9504-4273-af51-0440170ffc86-dataset-942b3f38-9504-4273-af51-0440170ffc86-rw-en"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"metadata"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"942b3f38-9504-4273-af51-0440170ffc86"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"application"</span><span class="p">:</span><span class="w"> </span><span class="s2">"skydipper"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"resource"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dataset"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"942b3f38-9504-4273-af51-0440170ffc86"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2017-01-20T08:07:53.272Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2017-01-20T08:07:53.272Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<blockquote>
+<p>It could respond with a <strong>401</strong> status code if the request is not authenticated, <strong>403</strong> if the request is not allowed to do that operation,
+<strong>400</strong> if the request is not well formatted, or <strong>5XX</strong> HTTP codes in other cases.</p>
+
+<p>The same operation applies to Widget and Layer just changing the endpoint for the appropriate one.</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/dataset/&lt;dataset-id&gt;/widget/&lt;widget-id&gt;/metadata <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "application": &lt;app&gt;,
+   "language": &lt;language&gt;
+  }'</span>
+</code></pre><pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/dataset/&lt;dataset-id&gt;/layer/&lt;layer-id&gt;/metadata <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "application": &lt;app&gt;,
+   "language": &lt;language&gt;
+  }'</span>
+</code></pre>
+<h2 id="getting-metadata">Getting metadata</h2>
+
+<p>application filter:
+<code class="prettyprint">
+application: gfw, gfw-climate, prep, skydipper, forest-atlas (select one or some of them)
+</code></p>
+
+<p>language filter:
+<code class="prettyprint">
+language: select between available languages (select one or some of them)
+</code></p>
+
+<p>limit filter:
+<code class="prettyprint">
+limit: the desired number
+</code></p>
+
+<p>Custom param for /metadata endpoint:
+<code class="prettyprint">
+type: [dataset, widget, layer]
+</code></p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset/&lt;dataset-id&gt;/metadata
+</code></pre><pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset/&lt;dataset-id&gt;/widget/&lt;widget-id&gt;/metadata
+</code></pre><pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset/&lt;dataset-id&gt;/layer/&lt;layer-id&gt;/metadata
+</code></pre>
+<blockquote>
+<p>Real example</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset/942b3f38-9504-4273-af51-0440170ffc86/metadata
+</code></pre>
+<h2 id="updating-a-metadata">Updating a metadata</h2>
+
+<p>Partial update:</p>
+
+<p>The &ldquo;application&rdquo; and &ldquo;language&rdquo; attributes are required and it is mandatory to include them in the payload.</p>
+<pre class="highlight shell"><code>curl -X PATCH https://api.skydipper.com/v1/dataset/&lt;dataset-id&gt;/metadata <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "application": &lt;app&gt;,
+   "language": &lt;language&gt;
+  }'</span>
+</code></pre>
+<blockquote>
+<p>Real example</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X PATCH https://api.skydipper.com/v1/dataset/942b3f38-9504-4273-af51-0440170ffc86/metadata <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "application": "skydipper",
+   "language": "en",
+   "name": "Cloud Computing Market - USA - 2016",
+   "source": "http://www.forbes.com/",
+   "info": {
+       "summary": "These and many other insights are from the latest series of cloud computing forecasts and market estimates produced by IDC, Gartner, Microsoft and other research consultancies. Amazon’s decision to break out AWS revenues and report them starting in Q1 FY2015 is proving to be a useful benchmark for tracking global cloud growth.  In their latest quarterly results released on January 28, Amazon reported that AWS generated $7.88B in revenues and attained a segment operating income of $1.863B. Please see page 8 of the announcement for AWS financials.  For Q4, AWS achieved a 28.5% operating margin (% of AWS net sales).",
+       "author": "Louis Columbus",
+       "date": "MAR 13, 2016 @ 10:42 PM",
+       "link": "http://www.forbes.com/sites/louiscolumbus/2016/03/13/roundup-of-cloud-computing-forecasts-and-market-estimates-2016/#5875cf0074b0"
+   }
+  }'</span>
+</code></pre>
+<blockquote>
+<p>Response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"942b3f38-9504-4273-af51-0440170ffc86-dataset-942b3f38-9504-4273-af51-0440170ffc86-skydipper-en"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"metadata"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"942b3f38-9504-4273-af51-0440170ffc86"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"application"</span><span class="p">:</span><span class="w"> </span><span class="s2">"skydipper"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"resource"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dataset"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"942b3f38-9504-4273-af51-0440170ffc86"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Cloud Computing Market - USA - 2016"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.forbes.com/"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"info"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"These and many other insights are from the latest series of cloud computing forecasts and market estimates produced by IDC, Gartner, Microsoft and other research consultancies. Amazon’s decision to break out AWS revenues and report them starting in Q1 FY2015 is proving to be a useful benchmark for tracking global cloud growth.  In their latest quarterly results released on January 28, Amazon reported that AWS generated $7.88B in revenues and attained a segment operating income of $1.863B. Please see page 8 of the announcement for AWS financials.  For Q4, AWS achieved a 28.5% operating margin (% of AWS net sales)."</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"author"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Louis Columbus"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MAR 13, 2016 @ 10:42 PM"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"link"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.forbes.com/sites/louiscolumbus/2016/03/13/roundup-of-cloud-computing-forecasts-and-market-estimates-2016/#5875cf0074b0"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2017-01-20T08:07:53.272Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2017-01-20T08:40:30.190Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<h2 id="deleting-a-metadata">Deleting a metadata</h2>
+
+<p>The &ldquo;application&rdquo; and &ldquo;language&rdquo; attributes are required and it is mandatory to include them in the query params.</p>
+<pre class="highlight shell"><code>curl -X DELETE https://api.skydipper.com/v1/dataset/&lt;dataset-id&gt;/metadata?application<span class="o">=</span>&lt;app-id&gt;&amp;language<span class="o">=</span>&lt;language&gt;
+</code></pre>
+<blockquote>
+<p>Real example</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X DELETE https://api.skydipper.com/v1/dataset/942b3f38-9504-4273-af51-0440170ffc86/metadata?application<span class="o">=</span>skydipper&amp;language<span class="o">=</span>en <span class="se">\</span>
+</code></pre>
+<h2 id="getting-all">Getting all</h2>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/metadata
+</code></pre>
+<blockquote>
+<p>Real examples</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/metadata
+</code></pre><pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/metadata?type<span class="o">=</span>dataset
+</code></pre><pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/metadata?type<span class="o">=</span>widget
+</code></pre><pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/metadata?application<span class="o">=</span>skydipper&amp;language<span class="o">=</span>es,en&amp;limit<span class="o">=</span>20
+</code></pre><pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/metadata?application<span class="o">=</span>skydipper,gfw&amp;language<span class="o">=</span>en&amp;type<span class="o">=</span>dataset
+</code></pre><pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/metadata?language<span class="o">=</span>en
+</code></pre>
+<h2 id="finding-getting-by-ids">Finding (getting) by ids</h2>
+
+<p>The &ldquo;ids&rdquo; property is required in the payload, and in other case the endpoint responds with a 400 HTTP ERROR (Bad Request)
+This property can be an Array or a String (comma-separated)
+payload -&gt; {&ldquo;ids&rdquo;: [&ldquo;112313&rdquo;, &ldquo;111123&rdquo;]}
+payload -&gt; {&ldquo;ids&rdquo;: &ldquo;112313, 111123&rdquo;}</p>
+
+<p>application filter:
+<code class="prettyprint">
+application: gfw, gfw-climate, prep, skydipper, forest-atlas (select one or some of them)
+</code></p>
+
+<p>language filter:
+<code class="prettyprint">
+language: select between available languages (select one or some of them)
+</code></p>
+
+<p>limit filter:
+<code class="prettyprint">
+limit: the desired number
+</code></p>
+
+<p>Custom param for the metadata endpoint:
+<code class="prettyprint">
+type: [dataset, widget, layer]
+</code></p>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/dataset/metadata/find-by-ids <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "ids": [&lt;ids&gt;]
+  }'</span>
+</code></pre>
+<blockquote>
+<p>Real example</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/dataset/metadata/find-by-ids <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+     "ids": "b000288d-7037-43ba-aa34-165eab549613, 942b3f38-9504-4273-af51-0440170ffc86"
+  }'</span>
+</code></pre>
+<blockquote>
+<p>Response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b000288d-7037-43ba-aa34-165eab549613-dataset-b000288d-7037-43ba-aa34-165eab549613-prep-en"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"metadata"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b000288d-7037-43ba-aa34-165eab549613"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"application"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prep"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"resource"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dataset"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b000288d-7037-43ba-aa34-165eab549613"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Projected temperature change"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The Puget Sound region is projected to warm rapidly during the 21st century. Prior to mid-century, the projected increase in air temperatures is about the same for all greenhouse gas scenarios, a result of the fact that a certain amount of warming is already “locked in” due to past emissions. After about 2050, projected warming depends on the amount of greenhouse gases emitted globally in the coming decades. For the 2050s (2040-2069, relative to 1970-1999), annual average air temperature is projected to rise +4.2°F to +5.9°F, on average, for a low (RCP 4.5) and a high (RCP 8.5) greenhouse gas scenario. These indicators are derived from the Multivariate Adaptive Constructed Analogs (MACA) CMIP5 Future Climate Dataset from the University of Idaho. For more information about this analysis, please see http://cses.washington.edu/picea/mauger/ps-sok/ps-sok_sec12_builtenvironment_2015.pdf. For more information about the MACA CMIP5 Future Climate Dataset please see http://maca.northwestknowledge.net/index.php"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://maca.northwestknowledge.net"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"citation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Abatzoglou, J. T.,   Brown, T. J. 2012. A comparison of statistical downscaling methods suited for wildfire applications. International Journal of Climatology, 32(5), 772-780. doi: http://dx.doi.org/10.1002/joc.2312 "</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"license"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Public domain"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"info"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"organization"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Joe Casola, University of Washington"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"license"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Public domain"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://maca.northwestknowledge.net"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"citation"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Abatzoglou, J. T.,   Brown, T. J. 2012. A comparison of statistical downscaling methods suited for wildfire applications. International Journal of Climatology, 32(5), 772-780. doi: http://dx.doi.org/10.1002/joc.2312 "</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The Puget Sound region is projected to warm rapidly during the 21st century. Prior to mid-century, the projected increase in air temperatures is about the same for all greenhouse gas scenarios, a result of the fact that a certain amount of warming is already “locked in” due to past emissions. After about 2050, projected warming depends on the amount of greenhouse gases emitted globally in the coming decades. For the 2050s (2040-2069, relative to 1970-1999), annual average air temperature is projected to rise +4.2°F to +5.9°F, on average, for a low (RCP 4.5) and a high (RCP 8.5) greenhouse gas scenario. These indicators are derived from the Multivariate Adaptive Constructed Analogs (MACA) CMIP5 Future Climate Dataset from the University of Idaho. For more information about this analysis, please see http://cses.washington.edu/picea/mauger/ps-sok/ps-sok_sec12_builtenvironment_2015.pdf. For more information about the MACA CMIP5 Future Climate Dataset please see http://maca.northwestknowledge.net/index.php"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"short-description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Projected temperature change in the Puget Sound Lowlands relative to average temperature between 1950-2005. Light colored lines in the background show the range of projections. All climate scenarios project warming for the Puget Sound region during the 21st century."</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"subtitle"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Projected temperature change"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2016-12-13T10:02:28.337Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2016-12-13T10:03:02.445Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"942b3f38-9504-4273-af51-0440170ffc86-dataset-942b3f38-9504-4273-af51-0440170ffc86-skydipper-en"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"metadata"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"942b3f38-9504-4273-af51-0440170ffc86"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"application"</span><span class="p">:</span><span class="w"> </span><span class="s2">"skydipper"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"resource"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dataset"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"942b3f38-9504-4273-af51-0440170ffc86"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"language"</span><span class="p">:</span><span class="w"> </span><span class="s2">"en"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Cloud Computing Market - USA - 2016"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.forbes.com/"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"info"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"link"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.forbes.com/sites/louiscolumbus/2016/03/13/roundup-of-cloud-computing-forecasts-and-market-estimates-2016/#5875cf0074b0"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MAR 13, 2016 @ 10:42 PM"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"author"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Louis Columbus"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"These and many other insights are from the latest series of cloud computing forecasts and market estimates produced by IDC, Gartner, Microsoft and other research consultancies. Amazon’s decision to break out AWS revenues and report them starting in Q1 FY2015 is proving to be a useful benchmark for tracking global cloud growth.  In their latest quarterly results released on January 28, Amazon reported that AWS generated $7.88B in revenues and attained a segment operating income of $1.863B. Please see page 8 of the announcement for AWS financials.  For Q4, AWS achieved a 28.5% operating margin (% of AWS net sales)."</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2017-01-20T08:07:53.272Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2017-01-20T08:40:30.190Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"published"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+          <h1 id="geostore">Geostore</h1>
+
+<h2 id="what-is-geostore">What is Geostore?</h2>
+
+<p>Geostore is a geojson database. You can save your geojson or obtain geojson by country, region, Protected areas, etc.</p>
+
+<p>Geostore object contains the following fields:</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>id</td>
+<td style="text-align: center">Id of the geostore</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>geojson</td>
+<td style="text-align: center">Geojson with the geometry</td>
+<td style="text-align: right">Object</td>
+</tr>
+<tr>
+<td>hash</td>
+<td style="text-align: center">MD5 hash generated from geojson. Is the same that the id</td>
+<td style="text-align: right">Object</td>
+</tr>
+<tr>
+<td>provider</td>
+<td style="text-align: center">This field should be completed if the geostore was created from a provider</td>
+<td style="text-align: right">Object</td>
+</tr>
+<tr>
+<td>&ndash; type</td>
+<td style="text-align: center">Provider type</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>&ndash; table</td>
+<td style="text-align: center">Table name</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>&ndash; user</td>
+<td style="text-align: center">User of the account</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>&ndash; filter</td>
+<td style="text-align: center">Conditions to obtain the geojson. It is possible use AND &amp; OR conditions. This conditions must only return one row.</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>areaHa</td>
+<td style="text-align: center">Area in Hectares of the geojson</td>
+<td style="text-align: right">Number</td>
+</tr>
+<tr>
+<td>bbox</td>
+<td style="text-align: center">Bounding box of the geojson</td>
+<td style="text-align: right">Array</td>
+</tr>
+</tbody></table>
+
+<aside class="notice">
+Remember — All endpoint of geostore don&rsquo;t need that you are authenticated.
+</aside>
+
+<h2 id="create-geostore">Create Geostore</h2>
+
+<p>You can create a geostore in 4 different ways:</p>
+
+<h3 id="with-a-geojson">With a Geojson</h3>
+
+<p>If you have your own geojson, you can save it in geostore. To create the geostore, you need to define all the required fields in the request body. The fields that compose a geostore are:</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+<th>Values</th>
+<th style="text-align: right">Required</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>geojson</td>
+<td style="text-align: center">Geojson with your geometry</td>
+<td style="text-align: right">Object</td>
+<td></td>
+<td style="text-align: right">Yes</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>To create a Geostore, you have to do a POST query with the following body:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/geostore <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "geojson": &lt;yourGeoJSONObject&gt;
+  }'</span>
+</code></pre>
+<blockquote>
+<p>Real example</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/geostore <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "geojson":{
+      "type":"FeatureCollection",
+      "features":[
+         {
+            "type":"Feature",
+            "properties":{
+
+            },
+            "geometry":{
+               "type":"LineString",
+               "coordinates":[
+                  [
+                     -3.9942169189453125,
+                     41.044922165782175
+                  ],
+                  [
+                     -3.995418548583985,
+                     41.03767166215326
+                  ],
+                  [
+                     -3.9842605590820312,
+                     41.03844854003296
+                  ],
+                  [
+                     -3.9844322204589844,
+                     41.04589315472392
+                  ],
+                  [
+                     -3.9942169189453125,
+                     41.044922165782175
+                  ]
+               ]
+            }
+         },
+         {
+            "type":"Feature",
+            "properties":{
+
+            },
+            "geometry":{
+               "type":"Polygon",
+               "coordinates":[
+                  [
+                     [
+                        -4.4549560546875,
+                        40.84706035607122
+                     ],
+                     [
+                        -4.4549560546875,
+                        41.30257109430557
+                     ],
+                     [
+                        -3.5211181640624996,
+                        41.30257109430557
+                     ],
+                     [
+                        -3.5211181640624996,
+                        40.84706035607122
+                     ],
+                     [
+                        -4.4549560546875,
+                        40.84706035607122
+                     ]
+                  ]
+               ]
+            }
+         }
+      ]
+   }
+}'</span>
+</code></pre>
+<p>The response will be 200 if the geostore saves correctly and returns the geostore object with all information:</p>
+
+<blockquote>
+<p>Example response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+   </span><span class="s2">"data"</span><span class="p">:{</span><span class="w">
+      </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"geoStore"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"c9bacccfb9c3fe225dc67545bb93a5cb"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"attributes"</span><span class="p">:{</span><span class="w">
+         </span><span class="s2">"geojson"</span><span class="p">:{</span><span class="w">
+            </span><span class="s2">"features"</span><span class="p">:[</span><span class="w">
+               </span><span class="p">{</span><span class="w">
+                  </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"Feature"</span><span class="p">,</span><span class="w">
+                  </span><span class="s2">"geometry"</span><span class="p">:{</span><span class="w">
+                     </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"Polygon"</span><span class="p">,</span><span class="w">
+                     </span><span class="s2">"coordinates"</span><span class="p">:[</span><span class="w">
+                        </span><span class="p">[</span><span class="w">
+                           </span><span class="p">[</span><span class="w">
+                              </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
+                              </span><span class="mf">40.84706035607122</span><span class="w">
+                           </span><span class="p">],</span><span class="w">
+                           </span><span class="p">[</span><span class="w">
+                              </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
+                              </span><span class="mf">41.30257109430557</span><span class="w">
+                           </span><span class="p">],</span><span class="w">
+                           </span><span class="p">[</span><span class="w">
+                              </span><span class="mf">-3.5211181640624996</span><span class="p">,</span><span class="w">
+                              </span><span class="mf">41.30257109430557</span><span class="w">
+                           </span><span class="p">],</span><span class="w">
+                           </span><span class="p">[</span><span class="w">
+                              </span><span class="mf">-3.5211181640624996</span><span class="p">,</span><span class="w">
+                              </span><span class="mf">40.84706035607122</span><span class="w">
+                           </span><span class="p">],</span><span class="w">
+                           </span><span class="p">[</span><span class="w">
+                              </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
+                              </span><span class="mf">40.84706035607122</span><span class="w">
+                           </span><span class="p">]</span><span class="w">
+                        </span><span class="p">]</span><span class="w">
+                     </span><span class="p">]</span><span class="w">
+                  </span><span class="p">}</span><span class="w">
+               </span><span class="p">}</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="s2">"crs"</span><span class="p">:{</span><span class="w">
+
+            </span><span class="p">},</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"FeatureCollection"</span><span class="w">
+         </span><span class="p">},</span><span class="w">
+         </span><span class="s2">"hash"</span><span class="p">:</span><span class="s2">"c9bacccfb9c3fe225dc67545bb93a5cb"</span><span class="p">,</span><span class="w">
+         </span><span class="s2">"provider"</span><span class="p">:{</span><span class="w">
+
+         </span><span class="p">},</span><span class="w">
+         </span><span class="s2">"areaHa"</span><span class="p">:</span><span class="mf">397372.34122605197</span><span class="p">,</span><span class="w">
+         </span><span class="s2">"bbox"</span><span class="p">:[</span><span class="w">
+            </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
+            </span><span class="mf">40.84706035607122</span><span class="p">,</span><span class="w">
+            </span><span class="mf">-3.5211181640624996</span><span class="p">,</span><span class="w">
+            </span><span class="mf">41.30257109430557</span><span class="w">
+         </span><span class="p">]</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+   </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<h3 id="from-country">From country</h3>
+
+<p>If you need obtain the geostore of a country, you can obtain it with the ISO3 code in the Geostore API.</p>
+
+<p><code class="prettyprint">GET https://api.skydipper.com/v1/geostore/admin/&lt;ISO3&gt;</code></p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/admin/&lt;ISO3&gt;
+</code></pre>
+<blockquote>
+<p>Real example obtaining the geostore of Spain
+<code class="prettyprint">shell
+curl -X GET https://api.skydipper.com/v1/geostore/admin/ESP
+</code></p>
+</blockquote>
+
+<h3 id="country-list">Country list</h3>
+
+<p>A list of countries can be obtained from this endpoint.</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/admin/list
+</code></pre>
+<blockquote>
+<p>Example response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+        </span><span class="s2">"geostoreId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"35a6d982388ee5c4e141c2bceac3fb72"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"iso"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ESP"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Spain"</span><span class="w">
+    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"geostoreId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8f77fe62cf15d5098ba0ee11c5126aa6"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"iso"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FRA"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"France"</span><span class="w">
+    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"geostoreId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1d568c183033da6c17cc28c4aecf1bcf"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"iso"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cod"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Democratic Republic of the Congo"</span><span class="w">
+    </span><span class="p">}]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<h3 id="from-country-and-region">From country and region</h3>
+
+<p>If you need obtain the geostore of a region in a country, you can obtain it with the ISO3 and region code:</p>
+
+<p><code class="prettyprint">GET https://api.skydipper.com/v1/geostore/admin/&lt;ISO3&gt;/&lt;regionCode&gt;</code></p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/admin/&lt;ISO3&gt;/&lt;regionCode&gt;
+</code></pre>
+<blockquote>
+<p>Real example obtaining the geostore of Madrid&rsquo;s Comunity in Spain</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/admin/ESP/8
+</code></pre>
+<h3 id="from-world-database-on-protected-areas-wdpa">From World Database on Protected Areas (wdpa)</h3>
+
+<p>Is possible obtain the geostore of a World Database on Protected Areas of the world. You only need the id of the protected area (WDPA).
+<a href="https://www.protectedplanet.net/">World Database on Protected Areas web</a></p>
+
+<p><code class="prettyprint">GET https://api.skydipper.com/v1/geostore/wdpa/&lt;wdpaId&gt;</code></p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/wdpa/&lt;wdpaId&gt;
+</code></pre>
+<blockquote>
+<p>Real example obtaining the geostore of &lsquo;Sierra de Guadarrama&rsquo; protected area</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/wdpa/555538160
+</code></pre>
+<h3 id="from-land-use-areas">From land use areas</h3>
+
+<p>Geostore has the geojson of 4 differents lands use:</p>
+
+<h4 id="oil-palm">Oil palm</h4>
+
+<p><code class="prettyprint">GET https://api.skydipper.com/v1/geostore/use/oilpalm/&lt;id&gt;</code></p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/use/oilpalm/&lt;id&gt;
+</code></pre>
+<blockquote>
+<p>Real example obtaining the geostore of one Oil palm area</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/use/oilpalm/556
+</code></pre>
+<h4 id="mining">Mining</h4>
+
+<p><code class="prettyprint">GET https://api.skydipper.com/v1/geostore/use/mining/&lt;id&gt;</code></p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/use/mining/&lt;id&gt;
+</code></pre>
+<blockquote>
+<p>Real example obtaining the geostore of one mining area</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/use/mining/573
+</code></pre>
+<h4 id="wood-fiber">Wood fiber</h4>
+
+<p><code class="prettyprint">GET https://api.skydipper.com/v1/geostore/use/fiber/&lt;id&gt;</code></p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/use/fiber/&lt;id&gt;
+</code></pre>
+<blockquote>
+<p>Real example obtaining the geostore of one Wood fiber area</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/use/fiber/346
+</code></pre>
+<h4 id="congo-basin-logging-roads">Congo Basin logging roads</h4>
+
+<p><code class="prettyprint">GET https://api.skydipper.com/v1/geostore/use/logging/&lt;id&gt;</code></p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/use/logging/&lt;id&gt;
+</code></pre>
+<blockquote>
+<p>Real example obtaining the geostore of Oil palm area</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/use/logging/102
+</code></pre>
+<h3 id="from-carto">From Carto</h3>
+
+<p>If your geojson is in carto table, is possible import this geojson in geostore.
+To import the geojson in geostore, you need to define all of the required fields in the request body. The fields that compose a import are:</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+<th>Values</th>
+<th style="text-align: right">Required</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>provider</td>
+<td style="text-align: center">Provider of data</td>
+<td style="text-align: right">Object</td>
+<td></td>
+<td style="text-align: right">Yes</td>
+</tr>
+<tr>
+<td>&ndash; type</td>
+<td style="text-align: center">Provider type</td>
+<td style="text-align: right">Text</td>
+<td>carto</td>
+<td style="text-align: right">Yes</td>
+</tr>
+<tr>
+<td>&ndash; table</td>
+<td style="text-align: center">Table name</td>
+<td style="text-align: right">Text</td>
+<td></td>
+<td style="text-align: right">Yes</td>
+</tr>
+<tr>
+<td>&ndash; user</td>
+<td style="text-align: center">User of the account</td>
+<td style="text-align: right">Text</td>
+<td></td>
+<td style="text-align: right">Yes</td>
+</tr>
+<tr>
+<td>&ndash; filter</td>
+<td style="text-align: center">Conditions to obtain the geojson. Is possible put and and or conditions. This conditions must only return one row.</td>
+<td style="text-align: right">Text</td>
+<td></td>
+<td style="text-align: right">Yes</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>To import a Geostore, you have to do a POST with the following body:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/geostore <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+    "provider":{
+        "type": "carto",
+        "table": &lt;tableName&gt;,
+        "user": &lt;userName&gt;,
+        "filter": &lt;conditions&gt;
+    }
+}'</span>
+</code></pre>
+<blockquote>
+<p>Real example</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/geostore <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+    "provider":{
+        "type": "carto",
+        "table": "gfw_mining",
+        "user": "wri-01",
+        "filter": "cartodb_id=573"
+    }
+}'</span>
+</code></pre>
+<blockquote>
+<p>Example response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"geoStore"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"26f8975c4c647c19a2edaa11f23880a2"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"geojson"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"features"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Feature"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"geometry"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MultiPolygon"</span><span class="p">,</span><span class="w">
+              </span><span class="s2">"coordinates"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">[</span><span class="w">
+                  </span><span class="p">[</span><span class="w">
+                    </span><span class="p">[</span><span class="w">
+                      </span><span class="mf">-74.0957370284411</span><span class="p">,</span><span class="w">
+                      </span><span class="mf">10.6814701233475</span><span class="w">
+                    </span><span class="p">],</span><span class="w">
+                    </span><span class="p">[</span><span class="w">
+                      </span><span class="mf">-74.0957357154309</span><span class="p">,</span><span class="w">
+                      </span><span class="mf">10.654348341203</span><span class="w">
+                    </span><span class="p">],</span><span class="w">
+                    </span><span class="p">[</span><span class="w">
+                      </span><span class="mf">-74.1100850695703</span><span class="p">,</span><span class="w">
+                      </span><span class="mf">10.6543473339623</span><span class="w">
+                    </span><span class="p">],</span><span class="w">
+                    </span><span class="p">[</span><span class="w">
+                      </span><span class="mf">-74.1100876551212</span><span class="p">,</span><span class="w">
+                      </span><span class="mf">10.6814691125096</span><span class="w">
+                    </span><span class="p">],</span><span class="w">
+                    </span><span class="p">[</span><span class="w">
+                      </span><span class="mf">-74.0957370284411</span><span class="p">,</span><span class="w">
+                      </span><span class="mf">10.6814701233475</span><span class="w">
+                    </span><span class="p">]</span><span class="w">
+                  </span><span class="p">]</span><span class="w">
+                </span><span class="p">]</span><span class="w">
+              </span><span class="p">]</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"crs"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+        </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FeatureCollection"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="s2">"hash"</span><span class="p">:</span><span class="w"> </span><span class="s2">"26f8975c4c647c19a2edaa11f23880a2"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"provider"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"filter"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cartodb_id=573"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"wri-01"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"table"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gfw_mining"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"carto"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="s2">"areaHa"</span><span class="p">:</span><span class="w"> </span><span class="mf">471.001953054716</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"bbox"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="mf">-74.1100876551212</span><span class="p">,</span><span class="w">
+        </span><span class="mf">10.6543473339623</span><span class="p">,</span><span class="w">
+        </span><span class="mf">-74.0957357154309</span><span class="p">,</span><span class="w">
+        </span><span class="mf">10.6814701233475</span><span class="w">
+      </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<h2 id="obtain-a-geostore">Obtain a Geostore</h2>
+
+<p>To obtain a geostore, you only need the id of the Geostore. You can perform a GET request for the geostore with its id.</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/&lt;geostoreId&gt;
+</code></pre>
+<blockquote>
+<p>Real example obtaining one geostore</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/geostore/use/logging/26f8975c4c647c19a2edaa11f23880a2
+</code></pre>
+<blockquote>
+<p>Example response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"geoStore"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"26f8975c4c647c19a2edaa11f23880a2"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"geojson"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"features"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+          </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Feature"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"geometry"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MultiPolygon"</span><span class="p">,</span><span class="w">
+              </span><span class="s2">"coordinates"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">[</span><span class="w">
+                  </span><span class="p">[</span><span class="w">
+                    </span><span class="p">[</span><span class="w">
+                      </span><span class="mf">-74.0957370284411</span><span class="p">,</span><span class="w">
+                      </span><span class="mf">10.6814701233475</span><span class="w">
+                    </span><span class="p">],</span><span class="w">
+                    </span><span class="p">[</span><span class="w">
+                      </span><span class="mf">-74.0957357154309</span><span class="p">,</span><span class="w">
+                      </span><span class="mf">10.654348341203</span><span class="w">
+                    </span><span class="p">],</span><span class="w">
+                    </span><span class="p">[</span><span class="w">
+                      </span><span class="mf">-74.1100850695703</span><span class="p">,</span><span class="w">
+                      </span><span class="mf">10.6543473339623</span><span class="w">
+                    </span><span class="p">],</span><span class="w">
+                    </span><span class="p">[</span><span class="w">
+                      </span><span class="mf">-74.1100876551212</span><span class="p">,</span><span class="w">
+                      </span><span class="mf">10.6814691125096</span><span class="w">
+                    </span><span class="p">],</span><span class="w">
+                    </span><span class="p">[</span><span class="w">
+                      </span><span class="mf">-74.0957370284411</span><span class="p">,</span><span class="w">
+                      </span><span class="mf">10.6814701233475</span><span class="w">
+                    </span><span class="p">]</span><span class="w">
+                  </span><span class="p">]</span><span class="w">
+                </span><span class="p">]</span><span class="w">
+              </span><span class="p">]</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"crs"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+        </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"FeatureCollection"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="s2">"hash"</span><span class="p">:</span><span class="w"> </span><span class="s2">"26f8975c4c647c19a2edaa11f23880a2"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"provider"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"filter"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cartodb_id=573"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"wri-01"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"table"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gfw_mining"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"carto"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="s2">"areaHa"</span><span class="p">:</span><span class="w"> </span><span class="mf">471.001953054716</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"bbox"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="mf">-74.1100876551212</span><span class="p">,</span><span class="w">
+        </span><span class="mf">10.6543473339623</span><span class="p">,</span><span class="w">
+        </span><span class="mf">-74.0957357154309</span><span class="p">,</span><span class="w">
+        </span><span class="mf">10.6814701233475</span><span class="w">
+      </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+          <h1 id="favorites">Favorites</h1>
+
+<p>The users can save their own favorites resources of the API.</p>
+
+<aside class="notice">
+Remember — All favorite endpoints need to be authenticated.
+</aside>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>id</td>
+<td style="text-align: center">Name</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>resourceId</td>
+<td style="text-align: center">Id of the resource</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>resourceType</td>
+<td style="text-align: center">Type of resource</td>
+<td style="text-align: right">Text (dataset, layer, widget)</td>
+</tr>
+<tr>
+<td>userId</td>
+<td style="text-align: center">Id of the owner user</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>createdAt</td>
+<td style="text-align: center">Creation date</td>
+<td style="text-align: right">Date</td>
+</tr>
+</tbody></table>
+
+<h2 id="create-favorite">Create Favorite</h2>
+
+<p>To create a favorite, you need to define all next fields in the request body. The required fields that compose a favorite are:</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>resourceId</td>
+<td style="text-align: center">Id of the resource</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>resourceType</td>
+<td style="text-align: center">Type of resource</td>
+<td style="text-align: right">Text (dataset, layer, widget)</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>To create a favorite, you have to do a POST with the following body:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/favourite <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "resourceType":"&lt;resourceType&gt;",
+   "resourceId": "&lt;resourceId&gt;"
+  }'</span>
+</code></pre>
+<h2 id="get-favorites">Get favorites</h2>
+
+<p>This endpoint returns the favorites of the logged user.</p>
+
+<blockquote>
+<p>To get all favorite of the logged user, you have to do a GET request:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/favourite <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
+</code></pre>
+<p>You can also retrieve all data about the resources by including the query parameter &ldquo;include=true&rdquo; in the request.</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/favourite?include<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
+</code></pre>
+<h2 id="get-favorite-by-id">Get favorite by id</h2>
+
+<p>This endpoint returns the favorite with id of the param. If the favorite belongs to other user or not exist, the endpoint returns 400.</p>
+
+<blockquote>
+<p>To get the favorite by id, you have to do a GET request:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/favourite/:id <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
+</code></pre>
+<h2 id="delete-favorite">Delete favorite</h2>
+
+<p>This endpoint deletes the favorite with id of the param. If the favorite belongs to other user or not exist, the endpoint returns 400.</p>
+
+<blockquote>
+<p>To delete the favorite by id, you have to do a DELETE request:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X DELETE https://api.skydipper.com/v1/favourite/:id <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
+</code></pre>
+          <h1 id="graph">Graph</h1>
+
+<p>The following graph endpoints are available</p>
+
+<h2 id="list-concepts">List concepts</h2>
+
+<p>Returns a list including all the concepts present in the graph</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/graph/query/list-concepts
+</code></pre>
+<h3 id="query-example">Query example</h3>
+<pre class="highlight plaintext"><code>{
+  "data": [
+    {
+      "id": "europe",
+      "label": "Europe",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "GEOGRAPHY"
+      ],
+      "numberOfDatasetsTagged": 0
+    },
+    {
+      "id": "damage",
+      "label": "Damage",
+      "synonyms": [
+        "destruction"
+      ],
+      "labels": [
+        "CONCEPT",
+        "TOPIC"
+      ],
+      "numberOfDatasetsTagged": 2
+    },
+    {
+      "id": "guernsey",
+      "label": "Guernsey",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "GEOGRAPHY"
+      ],
+      "numberOfDatasetsTagged": 0
+    }
+  ]
+}
+</code></pre>
+<h2 id="get-inferred-concepts">Get inferred concepts</h2>
+
+<p>This endpoint returns the set of concepts that are inferred from the set passed as a parameter</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+<th style="text-align: right">Values</th>
+<th style="text-align: right">Required</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>concepts</td>
+<td style="text-align: center">List of concepts</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any Text, values separated by commas</td>
+<td style="text-align: right">Yes</td>
+</tr>
+</tbody></table>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/graph/query/concepts-inferred?concepts<span class="o">=</span>&lt;concept_list&gt;
+</code></pre>
+<h3 id="example">Example</h3>
+
+<p>Concepts inferred from the set: [&lsquo;spain&rsquo;, &#39;raster&rsquo;]</p>
+<pre class="highlight plaintext"><code>https://api.skydipper.com/v1/graph/query/concepts-inferred?concepts=spain,raster
+</code></pre><pre class="highlight plaintext"><code>{
+  "data": [
+    {
+      "id": "location",
+      "label": "Location",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "TOPIC"
+      ]
+    },
+    {
+      "id": "eu",
+      "label": "EU",
+      "synonyms": [
+        "European Union"
+      ],
+      "labels": [
+        "CONCEPT",
+        "GEOGRAPHY"
+      ]
+    },
+    {
+      "id": "raster",
+      "label": "Raster",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "DATA_TYPE"
+      ]
+    },
+    {
+      "id": "oecd",
+      "label": "OECD",
+      "synonyms": [
+        "Organisation for Economic Co-operation and Development"
+      ],
+      "labels": [
+        "CONCEPT",
+        "GEOGRAPHY"
+      ]
+    },
+    {
+      "id": "schengen_area",
+      "label": "Schengen Area",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "GEOGRAPHY"
+      ]
+    },
+    {
+      "id": "country",
+      "label": "Country",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "GEOGRAPHY"
+      ]
+    },
+    {
+      "id": "continent",
+      "label": "Continent",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "GEOGRAPHY"
+      ]
+    },
+    {
+      "id": "global",
+      "label": "Global",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "GEOGRAPHY"
+      ]
+    },
+    {
+      "id": "general",
+      "label": "General",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "TOPIC"
+      ]
+    },
+    {
+      "id": "spain",
+      "label": "Spain",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "GEOGRAPHY"
+      ]
+    },
+    {
+      "id": "dataset",
+      "label": "Dataset",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "DATA_TYPE"
+      ]
+    },
+    {
+      "id": "europe",
+      "label": "Europe",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "GEOGRAPHY"
+      ]
+    }
+  ]
+}
+</code></pre>
+<h2 id="concepts-39-ancestors">Concepts&rsquo; ancestors</h2>
+
+<p>This endpoint returns the ancestors from the list of concepts provided</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+<th style="text-align: right">Values</th>
+<th style="text-align: right">Required</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>concepts</td>
+<td style="text-align: center">List of concepts</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any Text, values separated by commas</td>
+<td style="text-align: right">Yes</td>
+</tr>
+</tbody></table>
+<pre class="highlight shell"><code>https://api.skydipper.com/v1/graph/query/concepts-ancestors?concepts<span class="o">=</span>&lt;concept_list&gt;
+</code></pre>
+<h3 id="example">Example</h3>
+
+<p>Ancestors of the concepts from the set: [&#39;forest_cover&rsquo;, &#39;landslide&rsquo;]</p>
+<pre class="highlight plaintext"><code>https://api.skydipper.com/v1/graph/query/concepts-ancestors?concepts=forest_cover,landslide
+</code></pre><pre class="highlight plaintext"><code>{
+  "data": [
+    {
+      "id": "indicator",
+      "label": "Indicator",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "TOPIC"
+      ]
+    },
+    {
+      "id": "forest",
+      "label": "Forest",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "TOPIC"
+      ]
+    },
+    {
+      "id": "natural_disaster",
+      "label": "Natural disaster",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "TOPIC"
+      ]
+    },
+    {
+      "id": "natural_phenomena",
+      "label": "Natural phenomena",
+      "synonyms": "",
+      "labels": [
+        "CONCEPT",
+        "TOPIC"
+      ]
+    }
+  ]
+}
+</code></pre>
+<h2 id="similar-datasets">Similar datasets</h2>
+
+<p>Returns a set of datasets that are similar to the dataset provider sorted by their degree of similarity.</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/graph/query/similar-dataset/&lt;dataset-id&gt;
+</code></pre>
+<h3 id="parameters-available">Parameters available</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+<th style="text-align: right">Values</th>
+<th style="text-align: right">Required</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>published</td>
+<td style="text-align: center">Include only published datasets</td>
+<td style="text-align: right">Boolean</td>
+<td style="text-align: right">true/false</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>app</td>
+<td style="text-align: center">List of applications datasets should belong to (at least one of them)</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any text, values separated by commas</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>env</td>
+<td style="text-align: center">Include only datasets with at least one of the specified environments</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">One or more values from [&#39;production&rsquo;, &#39;preproduction&rsquo;]</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>limit</td>
+<td style="text-align: center">Maximum number of datasets returned by the endpoint</td>
+<td style="text-align: right">Integer</td>
+<td style="text-align: right">A positive integer (3 by default)</td>
+<td style="text-align: right">No</td>
+</tr>
+</tbody></table>
+
+<h3 id="example">Example</h3>
+
+<p>Datasets that are similar to the dataset with id <code class="prettyprint">63a7a997-695d-4629-b6e9-9b169f5c69b</code> including only those that are <strong>published</strong> with a <strong>limit of 6 results</strong> in total, datasets from both <code class="prettyprint">production</code> and <code class="prettyprint">preproduction</code> environments are included.</p>
+<pre class="highlight plaintext"><code>https://api.skydipper.com/v1/graph/query/similar-dataset/63a7a997-695d-4629-b6e9-9b169f5c69bf?published=true&amp;env=production,preproduction&amp;app=skydipper&amp;limit=6
+</code></pre><pre class="highlight plaintext"><code>{
+  "data": [
+    {
+      "dataset": "0a59f415-ee0b-4d19-96f7-c7304c152e1b",
+      "concepts": [
+        "global",
+        "raster",
+        "geospatial"
+      ]
+    },
+    {
+      "dataset": "0087944f-871c-44bc-b4d9-cd5acfc27023",
+      "concepts": [
+        "global",
+        "raster",
+        "geospatial"
+      ]
+    },
+    {
+      "dataset": "0303127a-70b0-4164-9251-d8162615d058",
+      "concepts": [
+        "raster",
+        "geospatial"
+      ]
+    },
+    {
+      "dataset": "05b7c688-09ba-4f33-90ea-185a1039df43",
+      "concepts": [
+        "global",
+        "geospatial"
+      ]
+    },
+    {
+      "dataset": "050f4146-566c-4a6d-9aaa-b49ab66a3090",
+      "concepts": [
+        "global",
+        "geospatial"
+      ]
+    },
+    {
+      "dataset": "00abb46f-34e2-4bf7-be30-1fb0b1de022f",
+      "concepts": [
+        "global",
+        "geospatial"
+      ]
+    }
+  ]
+}
+</code></pre>
+<h2 id="similar-datasets-including-ancestors">Similar datasets including ancestors</h2>
+
+<p>Returns a set of datasets that are similar to the dataset provider sorted by their degree of similarity as well as taking into account ancestor concepts.</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/graph/query/similar-dataset-including-descendent/&lt;dataset-id&gt;
+</code></pre>
+<h3 id="parameters-available">Parameters available</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+<th style="text-align: right">Values</th>
+<th style="text-align: right">Required</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>published</td>
+<td style="text-align: center">Include only published datasets</td>
+<td style="text-align: right">Boolean</td>
+<td style="text-align: right">true/false</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>app</td>
+<td style="text-align: center">List of applications datasets should belong to (at least one of them)</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any text, values separated by commas</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>env</td>
+<td style="text-align: center">Include only datasets with at least one of the specified environments</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">One or more values from [&#39;production&rsquo;, &#39;preproduction&rsquo;]</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>limit</td>
+<td style="text-align: center">Maximum number of datasets returned by the endpoint</td>
+<td style="text-align: right">Integer</td>
+<td style="text-align: right">A positive integer (3 by default)</td>
+<td style="text-align: right">No</td>
+</tr>
+</tbody></table>
+
+<h3 id="example">Example</h3>
+
+<p>Datasets that are similar to the dataset with id <code class="prettyprint">03bfb30e-829f-4299-bab9-b2be1b66b5d4</code> including only those that are <strong>published</strong> with a <strong>limit of 6 results</strong> in total, datasets from both <code class="prettyprint">production</code> and <code class="prettyprint">preproduction</code> environments are included.</p>
+<pre class="highlight plaintext"><code>https://api.skydipper.com/v1/graph/query/similar-dataset-including-descendent/03bfb30e-829f-4299-bab9-b2be1b66b5d4?published=true&amp;env=production,preproduction&amp;app=skydipper&amp;limit=6
+</code></pre><pre class="highlight plaintext"><code>{
+  "data": [
+    {
+      "dataset": "05b7c688-09ba-4f33-90ea-185a1039df43",
+      "concepts": [
+        "country",
+        "forest",
+        "geospatial",
+        "table"
+      ],
+      "numberOfOcurrences": 1
+    },
+    {
+      "dataset": "0448c79d-0ee0-42ff-9331-aeee70cef301",
+      "concepts": [
+        "forest_cover",
+        "forest_gain",
+        "forest_loss",
+        "geospatial"
+      ],
+      "numberOfOcurrences": 1
+    },
+    {
+      "dataset": "098b33df-6871-4e53-a5ff-b56a7d989f9a",
+      "concepts": [
+        "country",
+        "geospatial"
+      ],
+      "numberOfOcurrences": 1
+    },
+    {
+      "dataset": "0be2ce12-79b3-434b-b557-d6ea92d787fe",
+      "concepts": [
+        "geospatial",
+        "table"
+      ],
+      "numberOfOcurrences": 1
+    },
+    {
+      "dataset": "050f4146-566c-4a6d-9aaa-b49ab66a3090",
+      "concepts": [
+        "geospatial",
+        "table"
+      ],
+      "numberOfOcurrences": 1
+    },
+    {
+      "dataset": "00abb46f-34e2-4bf7-be30-1fb0b1de022f",
+      "concepts": [
+        "geospatial",
+        "table"
+      ],
+      "numberOfOcurrences": 1
+    }
+  ]
+}
+</code></pre>
+<h2 id="search-datasets-by-concepts">Search datasets by concepts</h2>
+
+<p>This endpoint performs a dataset search based on the concepts provided and the tags that have been associated to all the different datasets that are part of the
+application. Ancestors of the tags directly associated to a datasets are taken into account in the search.</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/graph/query/search-datasets?concepts[0][0]<span class="o">=</span><span class="s1">'water'</span>
+</code></pre>
+<p>Up to three sets of concepts can be provided as shown in the example below.
+Given the following sets of concepts:</p>
+
+<ul>
+<li>Set 1: <code class="prettyprint">[&#39;spain&#39;, &#39;europe&#39;]</code></li>
+<li>Set 2: <code class="prettyprint">[&#39;water&#39;]</code></li>
+<li>Set 3: <code class="prettyprint">[&#39;raster&#39;, &#39;geospatial&#39;]</code></li>
+</ul>
+
+<p>The url should be formed as follows:</p>
+
+<p><code class="prettyprint">https://api.skydipper.com/v1/graph/query/search-datasets?concepts[0][0]=spain,concepts[0][1]=europe,concepts[1][0]=water,concepts[2][0]=raster,concepts[2][1]=geospatial</code></p>
+
+<p><strong>AND</strong> logical operators are applied among the sets while <strong>OR</strong> is used for set elements.</p>
+
+<h3 id="parameters-available">Parameters available</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+<th style="text-align: right">Values</th>
+<th style="text-align: right">Required</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>published</td>
+<td style="text-align: center">Include only published datasets</td>
+<td style="text-align: right">Boolean</td>
+<td style="text-align: right">true/false</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>app</td>
+<td style="text-align: center">List of applications datasets should belong to (at least one of them)</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any text, values separated by commas</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>env</td>
+<td style="text-align: center">Include only datasets with at least one of the specified environments</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">One or more values from [&#39;production&rsquo;, &#39;preproduction&rsquo;]</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>page[size]</td>
+<td style="text-align: center">Maximum number of results returned by the endpoint</td>
+<td style="text-align: right">Number</td>
+<td style="text-align: right">No</td>
+<td style="text-align: right"></td>
+</tr>
+</tbody></table>
+
+<h3 id="example">Example</h3>
+
+<p>Search for datasets with the tag <code class="prettyprint">global</code> and <code class="prettyprint">water</code> and at least one of the two tags: <code class="prettyprint">raster</code>, <code class="prettyprint">geospatial</code>. The resulting datasets should also be published and be categorized either as <code class="prettyprint">production</code> or <code class="prettyprint">preproduction</code> and belong to the application <code class="prettyprint">skydipper</code>. The total number of results returned won&rsquo;t be limited since a very high number has been provided as limit <em>(999999)</em>.</p>
+
+<p><code class="prettyprint">https://api.skydipper.com/v1/graph/query/search-datasets?concepts[0][0]=global&amp;concepts[1][0]=water&amp;concepts[2][0]=raster&amp;concepts[2][1]=geospatial&amp;published=true&amp;env=production,preproduction&amp;app=skydipper&amp;page[size]=999999</code></p>
+<pre class="highlight plaintext"><code>{
+  "data": [
+    "11f43558-d703-4b9d-aff0-f2354a11b359",
+    "1b97e47e-ca18-4e50-9aae-a2853acca3f0",
+    "20c70a51-4ddf-4f6c-ad2c-1a6729b95fa4",
+    "21ac3cd2-9c19-47c7-ad18-4bcad118870f",
+    "33bed1fb-9261-41bf-8b50-127a4d0c80c5",
+    "3624554e-b240-4edb-9110-1f010642c3f3",
+    "36803484-c413-49a9-abe2-2286ee99b624",
+    "371e700e-bc9a-4526-af92-335d888de309",
+    "60be01b0-99fb-459c-8a08-b934270f8c4b",
+    "63a7a997-695d-4629-b6e9-9b169f5c69bf",
+    "894f43a8-ce8e-43a5-a4c7-fa80faa43d63",
+    "99075509-df36-461e-abb0-659cee555bd0",
+    "9e9a5c50-b825-4f12-838f-1650943c2be1",
+    "c17fab24-f71a-4c3e-bb87-6b753a944e6b",
+    "c9eadefd-4a06-4f3b-a2eb-3e3f45624c24",
+    "d7c3d954-ac86-4d1a-bb6a-c8c432a94e26",
+    "e63bb157-4b98-4ecb-81d6-c1b15e79895a",
+    "e7582657-9c16-4eb1-89e8-0211d94015c6",
+    "e94f0e2d-2b5f-41ed-967f-d97e54dd81ea",
+    "ede84747-0116-45c2-accb-1dfe141c00ff",
+    "f717ac77-6f06-493f-8336-4e660a18f74c",
+    "fa6443ff-eb95-4d0f-84d2-f0c91682efdf"
+  ]
+}
+</code></pre>
+<h2 id="most-liked-datasets">Most liked datasets</h2>
+
+<p>This endpoint returns the list of the most liked datasets in descending order.</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/graph/query/most-liked-datasets
+</code></pre>
+<h3 id="example-of-result">Example of result</h3>
+<pre class="highlight plaintext"><code>{
+    "data": [
+        {
+            "id": "e2971008-029f-441b-97cd-ee0555728182",
+            "count": {
+                "low": 2,
+                "high": 0
+            }
+        },
+        {
+            "id": "f6bb99af-541a-4d41-9e47-cc36cb479d4b",
+            "count": {
+                "low": 2,
+                "high": 0
+            }
+        },
+        {
+            "id": "223b936e-06b8-4970-abd9-4f123904d95d",
+            "count": {
+                "low": 2,
+                "high": 0
+            }
+        },
+        {
+            "id": "0b9f0100-ce5b-430f-ad8f-3363efa05481",
+            "count": {
+                "low": 2,
+                "high": 0
+            }
+        },
+        {
+            "id": "93ee443e-cb39-424a-9aa4-1d16af813418",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "7bcf2f48-8ebd-4900-a485-57a75f9f4e85",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "c18a38cd-94ff-48cd-818f-6ffb05992abb",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "5b5a21ac-0835-43fb-86b9-64b93d472e10",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "fc8cf356-f4be-4635-a896-fb468aaaa832",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "b8307c16-fd77-4e35-9b68-8726a025f401",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "e7c9251c-d39e-4b48-88c5-b2783bb7afdc",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "6e05a9e8-ba07-4e6f-8337-31c5362d07fe",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "3ac5a895-b8ab-4480-b7eb-0fbb452ea76f",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "e2aa09eb-c82e-4977-b614-ef71da5936ce",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "60be01b0-99fb-459c-8a08-b934270f8c4b",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "1ef55baf-bbbe-480d-85e9-7132c742f196",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "3a46f6b4-0eec-49d4-bbfc-e2e8f64e6117",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "d8a45b34-4cc0-42f4-957d-e13b37e9182e",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "80c31f61-6e12-47a0-865d-f33a48bfdebb",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "048b2140-9d4b-433e-a2dd-8d4122eb157b",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "4338471d-881a-475f-8bd9-60c4d48b8e12",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "f84b559f-1eb1-43f2-871f-93fea669bf93",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "9ea634db-53af-445e-a767-60ec9efc321e",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "c02da519-12f3-4c6a-86e7-648afac80b23",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "0a59f415-ee0b-4d19-96f7-c7304c152e1b",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "a07f1bed-ca16-4fbf-b14b-d3a0344cab74",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "f8d3e79c-c3d0-4f9a-9b68-9c5ad1f025e4",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "cefd2836-3cc1-43dc-a9d1-bfecf79a6252",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "63a7a997-695d-4629-b6e9-9b169f5c69bf",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "1b97e47e-ca18-4e50-9aae-a2853acca3f0",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "de452a4c-a55c-464d-9037-8c3e9fe48365",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "c36c3108-2581-4b68-852a-c929fc758001",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "05b7c688-09ba-4f33-90ea-185a1039df43",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        },
+        {
+            "id": "134caa0a-21f7-451d-a7fe-30db31a424aa",
+            "count": {
+                "low": 1,
+                "high": 0
+            }
+        }
+    ]
+}
+</code></pre>
+          <h1 id="areas">Areas</h1>
+
+<p>The following area endpoints are available</p>
+
+<h2 id="get-user-areas">Get user areas</h2>
+
+<p>Returns the list of areas created by the user provided</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+<th style="text-align: right">Values</th>
+<th style="text-align: right">Required</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>application</td>
+<td style="text-align: center">Application</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any Text, values separated by commas</td>
+<td style="text-align: right">No</td>
+</tr>
+</tbody></table>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/area?application<span class="o">=</span>&lt;application&gt;
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
+</code></pre>
+<h3 id="example">Example</h3>
+
+<p>Areas created by an user for the application skydipper.</p>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/area?application<span class="o">=</span>skydipper
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
+</code></pre><pre class="highlight plaintext"><code>{
+  "data": [
+    {
+      "type": "area",
+      "id": "59ca3213d08a7d001054522b",
+      "attributes": {
+        "name": "Test area France",
+        "application": "skydipper",
+        "geostore": "8f77fe62cf15d5098ba0ee11c5126aa6",
+        "userId": "58e22f662071c01c02f76a0f",
+        "createdAt": "2017-09-26T10:55:15.990Z",
+        "image": "",
+        "datasets": [
+
+        ],
+        "use": {
+
+        },
+        "iso": {
+
+        }
+      }
+    },
+    {
+      "type": "area",
+      "id": "59ca32ea3209db0014e9a7b7",
+      "attributes": {
+        "name": "Test custom area",
+        "application": "skydipper",
+        "geostore": "b12640deba9d3c5012c5359dd5572e2d",
+        "userId": "58e22f662071c01c02f76a0f",
+        "createdAt": "2017-09-26T10:58:50.226Z",
+        "image": "",
+        "datasets": [
+
+        ],
+        "use": {
+
+        },
+        "iso": {
+
+        }
+      }
+    }
+  ]
+}
+</code></pre>
+<h2 id="create-area">Create area</h2>
+
+<p>Creates a new area</p>
+
+<h3 id="parameters">Parameters</h3>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+<th style="text-align: right">Values</th>
+<th style="text-align: right">Required</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>application</td>
+<td style="text-align: center">Application</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any Text, values separated by commas</td>
+<td style="text-align: right">Yes</td>
+</tr>
+<tr>
+<td>name</td>
+<td style="text-align: center">Name of the new area</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any Text</td>
+<td style="text-align: right">Yes</td>
+</tr>
+<tr>
+<td>geostore</td>
+<td style="text-align: center">Geostore ID</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any Text</td>
+<td style="text-align: right">Yes</td>
+</tr>
+</tbody></table>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/area <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "name": &lt;name&gt;,
+   "application": &lt;application&gt;,
+   "geostore": &lt;geostore id&gt;
+ }'</span>
+</code></pre>
+<h3 id="example">Example</h3>
+
+<p>Create an area with name &lsquo;Portugal area&rsquo; and Geostore ID &#39;713899292fc118a915741728ef84a2a7&rsquo; for the Skydipper application</p>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/area?application<span class="o">=</span>skydipper <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "name": "Portugal area",
+   "application": "skydipper",
+   "geostore": "713899292fc118a915741728ef84a2a7"
+ }'</span>
+</code></pre><pre class="highlight plaintext"><code>{
+  "data": {
+    "type": "area",
+    "id": "5a0da028e6d876001080c259",
+    "attributes": {
+      "name": "Portugal area",
+      "application": "skydipper",
+      "geostore": "713899292fc118a915741728ef84a2a7",
+      "userId": "58e22f662071c01c02f76a0f",
+      "createdAt": "2017-11-16T14:26:48.396Z",
+      "image": "",
+      "datasets": [
+
+      ],
+      "use": {
+
+      },
+      "iso": {
+
+      }
+    }
+  }
+}
+</code></pre>
+<h2 id="delete-area">Delete area</h2>
+
+<p>Deletes an area</p>
+<pre class="highlight shell"><code>curl -X DELETE https://api.skydipper.com/v1/area/&lt;area-id&gt; <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+</code></pre>
+<h3 id="example">Example</h3>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/area/59ca3213d08a7d001054522b <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+</code></pre>
+<h2 id="get-area">Get area</h2>
+
+<p>Gets all the information from an area</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/area/&lt;area-id&gt; <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+</code></pre>
+<h3 id="example">Example</h3>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/area/59ca32ea3209db0014e9a7b7 <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+</code></pre><pre class="highlight plaintext"><code>{
+    "data": {
+        "type": "area",
+        "id": "59ca32ea3209db0014e9a7b7",
+        "attributes": {
+            "name": "Test custom area",
+            "application": "skydipper",
+            "geostore": "b12640deba9d3c5012c5359dd5572e2d",
+            "userId": "58e22f662071c01c02f76a0f",
+            "createdAt": "2017-09-26T10:58:50.226Z",
+            "image": "",
+            "datasets": [],
+            "use": {},
+            "iso": {}
+        }
+    }
+}
+</code></pre>
+          <h1 id="user-management">User Management</h1>
+
+<p>The following endpoints expose the API&rsquo;s functionality regarding user management.
+For more information or implementation details, see <a href="https://github.com/control-tower/ct-oauth-plugin">the source code</a>.</p>
+
+<h2 id="login-email-password">Login (email + password)</h2>
+
+<p>Login endpoints support both HTML and JSON output formats, depending on the <code class="prettyprint">Content-type</code> provided in the request. Keep in mind that HTML-based requests will result in redirects - for example, after successfully logging in, you will be taken to <code class="prettyprint">/auth/success</code> - while JSON based requests will simply return the matching HTTP code - 200 in case of a successful login.</p>
+
+<h3 id="get-lt-base-api-url-gt-auth">GET <code class="prettyprint">&lt;BASE API URL&gt;/auth/</code></h3>
+
+<p>Convenience URL that redirects to <code class="prettyprint">&lt;BASE API URL&gt;/auth/login</code></p>
+
+<h3 id="get-lt-base-api-url-gt-auth-login">GET <code class="prettyprint">&lt;BASE API URL&gt;/auth/login</code></h3>
+
+<p>Basic API auth login page. Only supported for HTML requests.</p>
+
+<h3 id="post-lt-base-api-url-gt-auth-login">POST <code class="prettyprint">&lt;BASE API URL&gt;/auth/login</code></h3>
+
+<p>Endpoint for email + password based login.</p>
+
+<p>For HTML requests, it will redirect to either <code class="prettyprint">&lt;BASE API URL&gt;/auth/success</code> or <code class="prettyprint">&lt;BASE API URL&gt;/auth/fail</code> depending on whether the login was successful or not. An optional <code class="prettyprint">callbackUrl</code> query parameter can be provided, in which case the user will be redirected to that URL in case of login success.</p>
+
+<p>For JSON requests, it will return 200 or 401 HTTP response code depending on whether the login was successful or not. In case of successful logins, the basic user details will be returned as a JSON object.</p>
+<pre class="highlight shell"><code><span class="c"># Email + password based login - JSON format</span>
+curl -X POST http://api.skydipper.com/auth/login <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+    "email":"your-email@provider.com",
+    "password":"potato"
+}'</span>
+</code></pre><pre class="highlight plaintext"><code>// Response:
+{
+  "data": {
+    "email": "your-email@provider.com",
+    "createdAt": "2018-11-15T04:46:35.313Z",
+    "role": "USER",
+    "extraUserData": {
+      "apps": [
+        "skydipper"
+      ]
+    },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjViZWNmYTJiNjdkYTBkM2VjMDdhMjdmNiIsInJvbGUiOiJVU0VSIiwicHJvdmlkZXIiOiJsb2NhbCIsImVtYWlsIjoidGVzdEBleGFtcGxlLmNvbSIsImV4dHJhVXNlckRhdGEiOnsiYXBwcyI6WyJydyJdfSwiY3JlYXRlZEF0IjoxNTQzMzE1NzMxNzcwLCJpYXQiOjE1NDMzMTU3MzF9.kIdkSOb7mCMOxE2ipqVOBrK7IefAjLDhaPG9DT1qvCw"
+  }
+}
+</code></pre>
+<h3 id="get-lt-base-api-url-gt-auth-fail">GET <code class="prettyprint">&lt;BASE API URL&gt;/auth/fail</code></h3>
+
+<p>Displays login errors for HTML requests. Not supported on JSON requests.</p>
+
+<h3 id="get-lt-base-api-url-gt-auth-check-logged">GET <code class="prettyprint">&lt;BASE API URL&gt;/auth/check-logged</code></h3>
+
+<p>Check login status</p>
+
+<h3 id="get-lt-base-api-url-gt-auth-success">GET <code class="prettyprint">&lt;BASE API URL&gt;/auth/success</code></h3>
+
+<p>Successful login page for HTML requests. Not supported on JSON requests.</p>
+
+<h3 id="get-lt-base-api-url-gt-auth-logout">GET <code class="prettyprint">&lt;BASE API URL&gt;/auth/logout</code></h3>
+
+<p>Login invalidation endpoint</p>
+
+<h3 id="get-lt-base-api-url-gt-auth-generate-token">GET <code class="prettyprint">&lt;BASE API URL&gt;/auth/generate-token</code></h3>
+
+<p>Generates a JWT token for the current user session.</p>
+
+<h2 id="login-3rd-party-oauth">Login (3rd party oauth)</h2>
+
+<ul>
+<li>GET &rsquo;<BASE API URL>/auth/twitter&rsquo; - Starts authentication using the configured Twitter settings</li>
+<li>GET &rsquo;<BASE API URL>/auth/twitter/callback&rsquo; - Callback used once Twitter auth is done</li>
+<li>GET &rsquo;<BASE API URL>/auth/google&rsquo; - Starts authentication using the configured Google settings</li>
+<li>GET &rsquo;<BASE API URL>/auth/google/callback&rsquo; - Callback used once Google auth is done</li>
+<li>GET &rsquo;<BASE API URL>/auth/google/token&rsquo; - Endpoint that expects the Google token used by the API to validate the user session.</li>
+<li>GET &rsquo;<BASE API URL>/auth/facebook&rsquo; - Starts authentication using the configured Google settings</li>
+<li>GET &rsquo;<BASE API URL>/auth/facebook/callback&rsquo; - Callback used once Facebook auth is done</li>
+<li>GET &rsquo;<BASE API URL>/auth/facebook/token&rsquo; - Endpoint that expects the Facebook token used by the API to validate the user session.</li>
+</ul>
+
+<h2 id="registration">Registration</h2>
+
+<p>Registration endpoints support both HTML and JSON output formats, depending on the <code class="prettyprint">Content-type</code> provided in the request.</p>
+
+<h3 id="get-lt-base-api-url-gt-auth-sign-up">GET <code class="prettyprint">&lt;BASE API URL&gt;/auth/sign-up</code></h3>
+
+<p>Account creation page, for accounts using email + password based login for HTML requests. Not supported on JSON requests.</p>
+
+<h3 id="post-lt-base-api-url-gt-auth-sign-up">POST <code class="prettyprint">&lt;BASE API URL&gt;/auth/sign-up</code></h3>
+
+<p>Account creation endpoint, for accounts using email + password based login for both HTML and JSON requests.</p>
+
+<p>For HTML requests, it will display a message informing about any validation error, or informing the user in case of success.</p>
+
+<p>For JSON requests, it will return 200 or 422 HTTP response code depending on whether the login was successful or not. In case of successful logins, the basic user details will be returned as a JSON object. In case of failure, an array of errors is returned.</p>
+
+<p>While optional, it&rsquo;s highly recommended that you specify which apps the user will be granted access to, as most API operation validate the user&rsquo;s apps match datasets, widgets, etc.</p>
+<pre class="highlight shell"><code><span class="c"># Account creation using email + password</span>
+curl -X POST http://api.skydipper.com/auth/sign-up <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+    "email":"your-email@provider.com",
+    "password":"potato",
+    "repeatPassword":"potato",
+    "apps": ["skydipper"]
+}'</span>
+</code></pre><pre class="highlight plaintext"><code>// Response:
+{
+  "data": {
+    "id": "5bfd237767b3176dd63f2eb7",
+    "email": "your-email@provider.com",
+    "createdAt": "2018-11-27T10:59:03.531Z",
+    "role": "USER",
+    "extraUserData": {
+      "apps": ["skydipper"]
+    }
+  }
+}
+
+</code></pre>
+<h3 id="get-lt-base-api-url-gt-auth-confirm-token">GET <code class="prettyprint">&lt;BASE API URL&gt;/auth/confirm/:token</code></h3>
+
+<p>Endpoint used in the user validation email to confirm the address upon registration. </p>
+
+<p>It accepts an optional <code class="prettyprint">callbackUrl</code> query parameter with an URL to which the user will be redirect if the confirmation succeeds.</p>
+
+<p>Should no <code class="prettyprint">callbackUrl</code> be provided, the user is redirected to an URL based on the first application associated to their user account - see <code class="prettyprint">ct-oauth-plugin</code> configuration for more info.</p>
+
+<p>Should that application have no configured redirect URL, or the user have no configured app, they are redirect to a platform-wide default URL - see <code class="prettyprint">ct-oauth-plugin</code> configuration for more info.</p>
+
+<h2 id="password-recovery">Password recovery</h2>
+
+<p>Password recovery endpoints support both HTML and JSON output formats, depending on the <code class="prettyprint">Content-type</code> provided in the request.</p>
+
+<h3 id="get-lt-base-api-url-gt-auth-reset-password">GET <code class="prettyprint">&lt;BASE API URL&gt;/auth/reset-password</code></h3>
+
+<p>Displays the password reset form page.</p>
+
+<h3 id="post-lt-base-api-url-gt-auth-reset-password">POST <code class="prettyprint">&lt;BASE API URL&gt;/auth/reset-password</code></h3>
+
+<p>Endpoint where the password reset request is sent.</p>
+<pre class="highlight shell"><code><span class="c"># Password reset</span>
+curl -X POST http://api.skydipper.com/auth/reset-password <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+    "email":"your-email@provider.com"
+}'</span>
+</code></pre>
+<h3 id="get-lt-base-api-url-gt-auth-reset-password-token">GET <code class="prettyprint">&lt;BASE API URL&gt;/auth/reset-password/:token</code></h3>
+
+<p>Endpoint used to validate email address upon password reset request.</p>
+
+<h3 id="post-lt-base-api-url-gt-auth-reset-password-token">POST <code class="prettyprint">&lt;BASE API URL&gt;/auth/reset-password/:token</code></h3>
+
+<p>Endpoint used to submit the new password.</p>
+<pre class="highlight shell"><code><span class="c"># New password submission</span>
+curl -X POST http://api.skydipper.com/auth/reset-password/&lt;email token&gt; <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+    "password":"potato",
+    "repeatPassword":"potato"
+}'</span>
+</code></pre>
+<h2 id="user-details-management">User details management</h2>
+
+<h3 id="get-lt-base-api-url-gt-auth-user">GET <code class="prettyprint">&lt;BASE API URL&gt;/auth/user</code></h3>
+
+<p>Lists user accounts:</p>
+
+<ul>
+<li>Only users with role ADMIN have permissions to use this endpoint.</li>
+<li>Email+password based accounts that have not had their email address confirmed will not be listed by this endpoint.</li>
+<li>Only users belonging to the same apps as the requesting user will be shown. </li>
+</ul>
+
+<p>This endpoint supports the following optional filter params:</p>
+
+<ul>
+<li>name</li>
+<li>email</li>
+<li>provider</li>
+<li>role</li>
+</ul>
+<pre class="highlight shell"><code><span class="c"># Lists all currently active users belonging to the same apps as the requester</span>
+curl -X GET http://api.skydipper.com/auth/user
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+
+
+<span class="c"># User listing, filter by email address</span>
+curl -X GET http://api.skydipper.com/auth/user?email<span class="o">=</span>my.address@email.com
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+</code></pre>
+<h3 id="get-lt-base-api-url-gt-auth-user-id">GET <code class="prettyprint">&lt;BASE API URL&gt;/auth/user/:id</code></h3>
+<pre class="highlight shell"><code><span class="c"># shows info for user with the given id</span>
+curl -X GET http://api.skydipper.com/auth/user/&lt;user_id&gt;
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+</code></pre>
+<h3 id="patch-lt-base-api-url-gt-auth-user-me">PATCH <code class="prettyprint">&lt;BASE API URL&gt;/auth/user/me</code></h3>
+
+<ul>
+<li>Updates current user details.</li>
+<li>Can be used by any user.</li>
+<li>Supported fields: <code class="prettyprint">name</code>, <code class="prettyprint">photo</code> and <code class="prettyprint">email</code> (except on 3rd party auth)</li>
+<li>Returns the new state of the updated user object.</li>
+</ul>
+<pre class="highlight shell"><code><span class="c"># updates current user details</span>
+curl -X PATCH http://api.skydipper.com/auth/user/me
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+ <span class="s1">'{
+    "name":"new-name",
+    "photo": "https://an.image.url/photo.jpg",
+    ...
+}'</span>
+</code></pre>
+<h3 id="patch-lt-base-api-url-gt-auth-user-id">PATCH <code class="prettyprint">&lt;BASE API URL&gt;/auth/user/:id</code></h3>
+
+<ul>
+<li>Updates specified user details.</li>
+<li>Can only be used by admins.</li>
+<li>Supported fields: <code class="prettyprint">name</code>, <code class="prettyprint">photo</code> and <code class="prettyprint">email</code> (except on 3rd party auth)</li>
+<li>Returns the new state of the updated user object.</li>
+</ul>
+<pre class="highlight shell"><code><span class="c"># updates details of user given its id</span>
+curl -X PATCH http://api.skydipper.com/auth/user/&lt;user_id&gt;
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+ <span class="s1">'{
+    "name":"new-name",
+    "photo": "https://an.image.url/photo.jpg",
+    ...
+}'</span>
+</code></pre>
+<h3 id="delete-lt-base-api-url-gt-auth-user-id">DELETE <code class="prettyprint">&lt;BASE API URL&gt;/auth/user/:id</code></h3>
+
+<ul>
+<li>Deletes the specified user account.</li>
+<li>Can only be used by admins.</li>
+<li>Returns the deleted user object.</li>
+</ul>
+
+<aside class="notice">
+This action only deletes the user account. Any resources that may be associated with this given user account are not modified or deleted.
+</aside>
+<pre class="highlight shell"><code><span class="c"># updates details of user given its id</span>
+curl -X DELETE http://api.skydipper.com/auth/user/&lt;user_id&gt;
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+ <span class="s1">'{
+    "name":"user name",
+    "email":"user@email.com",
+    "photo": "https://an.image.url/photo.jpg",
+    ...
+}'</span>
+</code></pre>
+          <h1 id="microservices">Microservices</h1>
+
+<p>A list of information related to the microservices</p>
+
+<aside class="notice">
+    These services are only available to ADMIN users.
+</aside>
+
+<h2 id="list-all-registered-microservices">List all registered microservices</h2>
+
+<p>To obtain a list of all the registered microservices:</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/api/v1/microservice <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
+</code></pre>
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"infoStatus"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"numRetries"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"error"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"lastCheck"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-02-04T14:05:30.748Z"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"pathInfo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/info"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"pathLive"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/ping"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"cache"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+        </span><span class="s2">"uncache"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+        </span><span class="s2">"tags"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"dataset"</span><span class="w">
+
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"id"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Dataset"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://dataset.default.svc.cluster.local:3000"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"version"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"redirect"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/v1/dataset"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/dataset"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"redirect"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/v1/dataset/find-by-ids"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/dataset/find-by-ids"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="err">...</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-01-24T13:04:46.728Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"swagger"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{}"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"infoStatus"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"numRetries"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"error"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"lastCheck"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-02-04T14:05:30.778Z"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"pathInfo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/info"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"pathLive"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/ping"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"cache"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"layer"</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"uncache"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"layer"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"dataset"</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"tags"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"layer"</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5aa667d1aee7ae16fb419c23"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Layer"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://layer.default.svc.cluster.local:6000"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"version"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"redirect"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/v1/layer"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/layer"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"redirect"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/v1/dataset/:dataset/layer"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/dataset/:dataset/layer"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"redirect"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/v1/dataset/:dataset/layer"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/dataset/:dataset/layer"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="err">...</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2018-11-08T12:07:38.014Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"swagger"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{}"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<h2 id="delete-microservice">Delete microservice</h2>
+
+<p>To remove a microservice:</p>
+<pre class="highlight shell"><code>curl -X DELETE https://api.skydipper.com/api/v1/microservice/:id <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
+</code></pre>
+<h4 id="notes">Notes</h4>
+
+<p>Keep in mind that this does not actually delete the microservice, instead it schedules it for being removed. 
+There&rsquo;s a cron task that does the actual deleting, so the process is async.</p>
+
+          <h1 id="errors">Errors</h1>
+
+<p>The Skydipper API uses the following error codes:</p>
+
+<table><thead>
+<tr>
+<th>Error Code</th>
+<th>Meaning</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>400</td>
+<td>Bad Request &ndash; Your request is incomplete or contains errors</td>
+</tr>
+<tr>
+<td>401</td>
+<td>Unauthorized &ndash; Your API key is incorrect</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Forbidden &ndash; The kitten requested is hidden for administrators only</td>
+</tr>
+<tr>
+<td>404</td>
+<td>Not Found &ndash; The specified kitten could not be found</td>
+</tr>
+<tr>
+<td>405</td>
+<td>Method Not Allowed &ndash; You tried to access a kitten with an invalid method</td>
+</tr>
+<tr>
+<td>406</td>
+<td>Not Acceptable &ndash; You requested a format that is not json</td>
+</tr>
+<tr>
+<td>410</td>
+<td>Gone &ndash; The kitten requested has been removed from our servers</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Too Many Requests &ndash; You&rsquo;re requesting too many kittens! Slow down!</td>
+</tr>
+<tr>
+<td>500</td>
+<td>Internal Server Error &ndash; We had a problem with our server. Try again later.</td>
+</tr>
+<tr>
+<td>503</td>
+<td>Service Unavailable &ndash; We&rsquo;re temporarily offline for maintenance. Please try again later.</td>
+</tr>
+</tbody></table>
+
+          <h1 id="api-attribution-requirements">API attribution requirements</h1>
+
+<p>By using the Skydipper API, you agree to the Skydipper <a href="//skydipper.com/terms-of-service">terms of service</a> and <a href="//skydipper.com/api-attribution-requirements">attribution requirements</a>.</p>
+
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+                <a href="#" data-language-name="shell">cURL</a>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>
