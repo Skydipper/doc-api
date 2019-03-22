@@ -266,69 +266,6 @@ curl -X GET https://api.skydipper.com/v1/geostore/wdpa/<wdpaId>
 curl -X GET https://api.skydipper.com/v1/geostore/wdpa/555538160
 ```
 
-### From land use areas
-
-Geostore has the geojson of 4 differents lands use:
-
-#### Oil palm
-
-`GET https://api.skydipper.com/v1/geostore/use/oilpalm/<id>`
-
-```shell
-curl -X GET https://api.skydipper.com/v1/geostore/use/oilpalm/<id>
-```
-
-> Real example obtaining the geostore of one Oil palm area
-
-```shell
-curl -X GET https://api.skydipper.com/v1/geostore/use/oilpalm/556
-```
-
-#### Mining
-
-`GET https://api.skydipper.com/v1/geostore/use/mining/<id>`
-
-```shell
-curl -X GET https://api.skydipper.com/v1/geostore/use/mining/<id>
-```
-
-> Real example obtaining the geostore of one mining area
-
-```shell
-curl -X GET https://api.skydipper.com/v1/geostore/use/mining/573
-```
-
-
-#### Wood fiber
-
-`GET https://api.skydipper.com/v1/geostore/use/fiber/<id>`
-
-```shell
-curl -X GET https://api.skydipper.com/v1/geostore/use/fiber/<id>
-```
-
-> Real example obtaining the geostore of one Wood fiber area
-
-```shell
-curl -X GET https://api.skydipper.com/v1/geostore/use/fiber/346
-```
-
-
-#### Congo Basin logging roads
-
-`GET https://api.skydipper.com/v1/geostore/use/logging/<id>`
-
-```shell
-curl -X GET https://api.skydipper.com/v1/geostore/use/logging/<id>
-```
-
-> Real example obtaining the geostore of Oil palm area
-
-```shell
-curl -X GET https://api.skydipper.com/v1/geostore/use/logging/102
-```
-
-
 ### From Carto
 
 If your geojson is in carto table, is possible import this geojson in geostore.

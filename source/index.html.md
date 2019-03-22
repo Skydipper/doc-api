@@ -16,7 +16,6 @@ includes:
   - api/metadata
   - api/geostore
   - api/favourites
-  - api/graph
   - api/areas
   - api/user_management
   - api/microservices

@@ -2,7 +2,7 @@
 
 ## Metadata definition
 
-Metadata can be any kind of data associated to an existing resource (i.e. Dataset, Layer or Widget)
+Metadata can be any kind of data associated to an existing resource (i.e. a dataset).
 
 Some fields are important to identify the entity properly; others are just optional and give extra information about it.
 
@@ -93,31 +93,11 @@ curl -X POST https://api.skydipper.com/v1/dataset/942b3f38-9504-4273-af51-044017
 > It could respond with a **401** status code if the request is not authenticated, **403** if the request is not allowed to do that operation,
 **400** if the request is not well formatted, or **5XX** HTTP codes in other cases.
 
-> The same operation applies to Widget and Layer just changing the endpoint for the appropriate one.
-
-```shell
-curl -X POST https://api.skydipper.com/v1/dataset/<dataset-id>/widget/<widget-id>/metadata \
--H "Content-Type: application/json"  -d \
- '{
-   "application": <app>,
-   "language": <language>
-  }'
-```
-
-```shell
-curl -X POST https://api.skydipper.com/v1/dataset/<dataset-id>/layer/<layer-id>/metadata \
--H "Content-Type: application/json"  -d \
- '{
-   "application": <app>,
-   "language": <language>
-  }'
-```
-
 ## Getting metadata
 
 application filter:
 ```
-application: gfw, gfw-climate, prep, skydipper, forest-atlas (select one or some of them)
+application: skydipper
 ```
 
 language filter:
@@ -132,19 +112,11 @@ limit: the desired number
 
 Custom param for /metadata endpoint:
 ```
-type: [dataset, widget, layer]
+type: [dataset]
 ```
 
 ```shell
 curl -X GET https://api.skydipper.com/v1/dataset/<dataset-id>/metadata
-```
-
-```shell
-curl -X GET https://api.skydipper.com/v1/dataset/<dataset-id>/widget/<widget-id>/metadata
-```
-
-```shell
-curl -X GET https://api.skydipper.com/v1/dataset/<dataset-id>/layer/<layer-id>/metadata
 ```
 
 > Real example
@@ -252,10 +224,6 @@ curl -X GET https://api.skydipper.com/v1/metadata?type=dataset
 ```
 
 ```shell
-curl -X GET https://api.skydipper.com/v1/metadata?type=widget
-```
-
-```shell
 curl -X GET https://api.skydipper.com/v1/metadata?application=skydipper&language=es,en&limit=20
 ```
 
@@ -276,7 +244,7 @@ payload -> {"ids": "112313, 111123"}
 
 application filter:
 ```
-application: gfw, gfw-climate, prep, skydipper, forest-atlas (select one or some of them)
+application: skydipper (select one or some of them)
 ```
 
 language filter:
@@ -291,7 +259,7 @@ limit: the desired number
 
 Custom param for the metadata endpoint:
 ```
-type: [dataset, widget, layer]
+type: [dataset]
 ```
 
 

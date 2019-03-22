@@ -29,7 +29,7 @@ curl -X GET https://api.skydipper.com/api/v1/microservice \
         "pathLive": "/ping",
         "status": "active",
         "cache": [],
-        "uncache": [],
+        "uncache": ["dataset"],
         "tags": [
             "dataset"
           
@@ -58,59 +58,6 @@ curl -X GET https://api.skydipper.com/api/v1/microservice \
             ...
         ],
         "updatedAt": "2019-01-24T13:04:46.728Z",
-        "swagger": "{}"
-    },
-    {
-        "infoStatus": {
-            "numRetries": 0,
-            "error": null,
-            "lastCheck": "2019-02-04T14:05:30.778Z"
-        },
-        "pathInfo": "/info",
-        "pathLive": "/ping",
-        "status": "active",
-        "cache": [
-            "layer"
-        ],
-        "uncache": [
-            "layer",
-            "dataset"
-        ],
-        "tags": [
-            "layer"
-        ],
-        "_id": "5aa667d1aee7ae16fb419c23",
-        "name": "Layer",
-        "url": "http://layer.default.svc.cluster.local:6000",
-        "version": 1,
-        "endpoints": [
-            {
-                "redirect": {
-                    "method": "GET",
-                    "path": "/api/v1/layer"
-                },
-                "path": "/v1/layer",
-                "method": "GET"
-            },
-            {
-                "redirect": {
-                    "method": "POST",
-                    "path": "/api/v1/dataset/:dataset/layer"
-                },
-                "path": "/v1/dataset/:dataset/layer",
-                "method": "POST"
-            },
-            {
-                "redirect": {
-                    "method": "GET",
-                    "path": "/api/v1/dataset/:dataset/layer"
-                },
-                "path": "/v1/dataset/:dataset/layer",
-                "method": "GET"
-            },
-            ...
-        ],
-        "updatedAt": "2018-11-08T12:07:38.014Z",
         "swagger": "{}"
     },
     ...

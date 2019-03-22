@@ -129,11 +129,9 @@ You can download the result of a query using the `download` endpoint.
 
 <aside class="warning">
     <ul>
-    This endpoint is not supported for all the dataset providers. The following dataset connector provide support for downloads:
+    This endpoint is not neccesarily supported for all dataset providers. The following dataset connector provide support for downloads:
         <li>Google Earth Engine</li>
-        <li>Document</li>
         <li>Carto</li>
-        <li>BigQuery</li>
         <li>ArcGIS FeatureService</li>
     </ul>
 </aside>

@@ -11,7 +11,7 @@ Remember — All favorite endpoints need to be authenticated.
 | ------------------|:-----------------------------------------:                                      | -----:
 | id                | Name                                                                            | Text
 | resourceId        | Id of the resource                                                              | Text
-| resourceType      | Type of resource                                                                | Text (dataset, layer, widget)
+| resourceType      | Type of resource                                                                | Text (dataset)
 | userId            | Id of the owner user                                                            | Text
 | createdAt         | Creation date                                                                   | Date
 
@@ -24,7 +24,7 @@ To create a favorite, you need to define all next fields in the request body. Th
 | Field             | Description                                                                     | Type
 | ------------------|:-----------------------------------------:                                      | -----:
 | resourceId        | Id of the resource                                                              | Text
-| resourceType      | Type of resource                                                                | Text (dataset, layer, widget)
+| resourceType      | Type of resource                                                                | Text (dataset)
 
 
 > To create a favorite, you have to do a POST with the following body:
