@@ -732,176 +732,556 @@ Deleting a dataset removes it permanently! It is recommended that you save a loc
     This is an authenticated endpoint!
 </aside>
 
-          <h1 id="query">Query</h1>
+          <h1 id="layer">Layer</h1>
 
-<p>In order to retrieve data from the datasets it is possible to send queries to the API using the SQL or Feature Service languages.</p>
+<h2 id="what-is-a-layer">What is a Layer?</h2>
 
-<p>Two different endpoints are provided (under the dataset path and a generic one) and the sql query can be provided via query parameters or in the body of a POST request.</p>
-<pre class="highlight shell"><code>curl -i -H <span class="s1">'Authorization: Bearer your-token&gt;'</span> -H <span class="s1">'Content-Type: application/json'</span> -XPOST <span class="s1">'http://api.skydipper.com/v1/query/&lt;dataset_id&gt;/'</span> -d <span class="s1">'{
-    "sql": "SELECT * FROM &lt;dataset_id&gt; limit 10"
-}
-'</span>
-</code></pre><pre class="highlight shell"><code>curl -i -XGET http<span class="se">\:</span>//api.skydipper.com/v1/query<span class="se">\?</span>sql<span class="se">\=</span>SELECT<span class="se">\ \*\ </span>from<span class="se">\ </span>&lt;dataset.slug&gt;
+<p>A layer is a geographical representation of a Dataset&rsquo;s data.</p>
+
+<p>Layer contains the following fields:</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>userId</td>
+<td style="text-align: center">Id of the owner</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>application</td>
+<td style="text-align: center">Application to which the dataset belongs</td>
+<td style="text-align: right">Array</td>
+</tr>
+<tr>
+<td>iso</td>
+<td style="text-align: center">The isos to which the dataset belongs</td>
+<td style="text-align: right">Array</td>
+</tr>
+<tr>
+<td>slug</td>
+<td style="text-align: center">Unique identifier of the layer</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>name</td>
+<td style="text-align: center">Name of the layer</td>
+<td style="text-align: right">Url</td>
+</tr>
+<tr>
+<td>description</td>
+<td style="text-align: center">Description of the layer</td>
+<td style="text-align: right">Array</td>
+</tr>
+<tr>
+<td>dataset</td>
+<td style="text-align: center">UuId of the dataset that the layer belongs</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>layerConfig</td>
+<td style="text-align: center">Custom configuration</td>
+<td style="text-align: right">Object</td>
+</tr>
+<tr>
+<td>legendConfig</td>
+<td style="text-align: center">Custom configuration</td>
+<td style="text-align: right">Object</td>
+</tr>
+<tr>
+<td>applicationConfig</td>
+<td style="text-align: center">Custom configuration</td>
+<td style="text-align: right">Object</td>
+</tr>
+<tr>
+<td>staticImageConfig</td>
+<td style="text-align: center">Custom configuration</td>
+<td style="text-align: right">Object</td>
+</tr>
+<tr>
+<td>default</td>
+<td style="text-align: center">If it&rsquo;s a default layer for the dataset that it belongs</td>
+<td style="text-align: right">Boolean</td>
+</tr>
+<tr>
+<td>protected</td>
+<td style="text-align: center">If it&rsquo;s a protected layer (not is possible to delete if it&rsquo;s true)</td>
+<td style="text-align: right">Boolean</td>
+</tr>
+<tr>
+<td>published</td>
+<td style="text-align: center">Is the layer published?</td>
+<td style="text-align: right">Boolean</td>
+</tr>
+<tr>
+<td>env</td>
+<td style="text-align: center">environment in witch the layer was published, one of <code class="prettyprint">preproduction</code> or <code class="prettyprint">production</code></td>
+<td style="text-align: right">Text</td>
+</tr>
+</tbody></table>
+
+<h2 id="how-obtain-all-layers">How obtain all layers</h2>
+
+<p>To obtain all layers:</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/layer
 </code></pre>
-<aside class="notice">
-While we aim to make our query interface as broad and transparent as possible, some of the querying options described 
-below will not be available for specific dataset providers, depending on this API&rsquo;s implementation or limitations on the
-actual data provider&rsquo;s side.
+<aside class="success">
+Remember — the response is jsonapi format
 </aside>
 
-<h2 id="select-clause">Select clause</h2>
-
-<p>The <code class="prettyprint">SELECT</code> part of the queries supports naming columns, <strong>alias</strong>, <strong>math operations</strong>, <strong>DISTINCT</strong>, <strong>COUNT</strong>, <strong>SQL functions</strong> and <strong>PostGIS functions</strong></p>
-<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-
-<span class="k">SELECT</span> <span class="k">sum</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="k">avg</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="k">max</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="k">min</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="k">min</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">as</span> <span class="n">minimum</span> <span class="k">FROM</span> <span class="k">table</span>
-
-<span class="k">SELECT</span> <span class="n">ST_valueCount</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-</code></pre>
-<h2 id="from-clause">From clause</h2>
-
-<p>It is possible to refer to a dataset by using its <strong>table name</strong>, <strong>slug</strong> or <strong>id</strong>. </p>
-<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="p">.</span><span class="n">tableName</span><span class="o">&gt;</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="p">.</span><span class="n">slug</span><span class="o">&gt;</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="p">.</span><span class="n">id</span><span class="o">&gt;</span>
-</code></pre>
-<h2 id="where-clause">Where clause</h2>
-<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="mi">2</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">&lt;</span> <span class="mi">2</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">&gt;=</span> <span class="mi">2</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">and</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="mi">2</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">text</span> <span class="k">like</span> <span class="s1">'a%'</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">st_intersects</span><span class="p">(</span><span class="n">st_setsrid</span><span class="p">(</span><span class="n">st_geomfromgeojson</span><span class="p">(</span><span class="s1">'{}'</span><span class="p">),</span> <span class="mi">4326</span><span class="p">),</span> <span class="n">the_geom</span><span class="p">)</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="k">data</span> <span class="k">BETWEEN</span> <span class="mi">1</span> <span class="k">AND</span> <span class="mi">3</span>
-</code></pre>
-<h2 id="group-by-clause">Group by clause</h2>
-
-<p>It is possible to group results by <strong>column name</strong>, <strong>SQL functions</strong> and <strong>PostGIS functions</strong>.
-Special grouping operations are available for document-type datasets (CSV and JSON) - see <a href="https://github.com/NLPchina/elasticsearch-sql/tree/5.5.2.0#beyond-sql">this link</a> for more info.</p>
-<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">columnOne</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">columnOne</span><span class="p">,</span> <span class="n">columnTwo</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">ST_GeoHash</span><span class="p">(</span><span class="n">the_geom_point</span><span class="p">,</span><span class="mi">8</span><span class="p">)</span>
-
-<span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">a</span>
-<span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">ST_GeoHash</span><span class="p">(</span><span class="n">the_geom</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-</code></pre><pre class="highlight sql"><code><span class="cm">/* Only supported in document-type datasets - see https://github.com/NLPchina/elasticsearch-sql/tree/5.5.2.0#beyond-sql for full details */</span>
-<span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="n">age</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">range</span><span class="p">(</span><span class="n">age</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">35</span><span class="p">,</span><span class="mi">40</span><span class="p">)</span> 
-<span class="k">SELECT</span> <span class="n">online</span> <span class="k">FROM</span> <span class="n">online</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">date_histogram</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">'insert_time'</span><span class="p">,</span><span class="s1">'interval'</span><span class="o">=</span><span class="s1">'1d'</span><span class="p">)</span>
-<span class="k">SELECT</span> <span class="n">online</span> <span class="k">FROM</span> <span class="n">online</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">date_range</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">'insert_time'</span><span class="p">,</span><span class="s1">'format'</span><span class="o">=</span><span class="s1">'yyyy-MM-dd'</span> <span class="p">,</span><span class="s1">'2014-08-18'</span><span class="p">,</span><span class="s1">'2014-08-17'</span><span class="p">,</span><span class="s1">'now-8d'</span><span class="p">,</span><span class="s1">'now-7d'</span><span class="p">,</span><span class="s1">'now-6d'</span><span class="p">,</span><span class="s1">'now'</span><span class="p">)</span>
-</code></pre>
-<h2 id="order-by-clause">Order by clause</h2>
-
-<p>It is possible to order results by <strong>column name</strong>, <strong>SQL functions</strong> and <strong>PostGIS functions</strong></p>
-
-<h2 id="limit-and-offset-clause">Limit and offset clause</h2>
-
-<p>You can specify <code class="prettyprint">limit</code> and <code class="prettyprint">offset</code> clauses</p>
-<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">limit</span><span class="o">=</span><span class="mi">20</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">limit</span><span class="o">=</span><span class="mi">20</span> <span class="k">offset</span> <span class="mi">10</span>
-</code></pre>
-<h2 id="raster-queries-available">Raster queries available</h2>
-<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="n">ST_METADATA</span><span class="p">(</span><span class="n">rast</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="n">ST_BANDMETADATA</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="n">occurrence</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="n">ST_SUMMARYSTATS</span><span class="p">()</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="n">ST_HISTOGRAM</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">auto</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="n">ST_valueCount</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-</code></pre>
-<h2 id="freeze-query">Freeze query</h2>
-
-<p>It is possible generate a json file in a bucket of the sql result. You only need send a query param freeze with value true and you will obtain the url of the json file.</p>
-
-<aside class="notice">
-    This is an authenticated feature!
-</aside>
-<pre class="highlight shell"><code>curl -i -XGET http<span class="se">\:</span>//api.skydipper.com/v1/query<span class="se">\?</span>sql<span class="se">\=</span>SELECT<span class="se">\ \*\ </span>from<span class="se">\ </span>&lt;dataset.slug&gt;&amp;freeze<span class="o">=</span><span class="nb">true</span>
-</code></pre>
-<h2 id="download">Download</h2>
-
-<p>You can download the result of a query using the <code class="prettyprint">download</code> endpoint. </p>
-
-<aside class="warning">
-    <ul>
-    This endpoint is not neccesarily supported for all dataset providers. The following dataset connector provide support for downloads:
-        <li>Google Earth Engine</li>
-        <li>Carto</li>
-        <li>ArcGIS FeatureService</li>
-    </ul>
-</aside>
-<pre class="highlight shell"><code><span class="c"># The id of the dataset is part of the URL</span>
-curl -XGET https://api.skydipper.com/v1/download/&lt;dataset.id&gt;?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.tableName&gt;
-
-<span class="c"># The id of the dataset is in the FROM clause</span>
-curl -XGET https://api.skydipper.com/v1/download?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.id&gt;
-</code></pre>
-<p>There are two ways to call it:</p>
-
-<ul>
-<li>you can either specify the id of the dataset in the URL</li>
-<li>or you can pass it as part of the SQL query (in the FROM clause)</li>
-</ul>
-
-<p>You can also specify which file type you want to download (JSON or CSV), except for Google Earth Engine datasets (only JSON).</p>
-
-<aside class="notice">
-    By default, the API will return a CSV file (JSON file for Google Earth Engine).
-</aside>
-<pre class="highlight shell"><code><span class="c"># The format is explicitly set</span>
-curl -XGET https://api.skydipper.com/v1/download/&lt;dataset.id&gt;?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.tableName&gt;&amp;format<span class="o">=</span>json
-curl -XGET https://api.skydipper.com/v1/download/&lt;dataset.id&gt;?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.tableName&gt;&amp;format<span class="o">=</span>csv
-</code></pre>
-          <h1 id="fields">Fields</h1>
-
-<h2 id="what-are-fields">What are fields?</h2>
-
-<p>Fields can be defined as the dataset properties. These fields are automatically generated when a dataset is created.</p>
-
-<h2 id="how-to-get-the-dataset-fields">How to get the dataset fields</h2>
-
-<p>Once the dataset is properly created and saved, it is possible to access to its fields as well as getting some information about them.</p>
-
-<p>To do that, it is necessary to use of the following endpoint:</p>
-<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/fields/&lt;dataset-id&gt;
-</code></pre>
 <blockquote>
-<p>Real example</p>
-</blockquote>
-<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/fields/1170030b-9725-4bfe-8fb4-1b0eb81020d2
-</code></pre>
-<blockquote>
-<p>Response</p>
+<p>Example response:</p>
 </blockquote>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="s2">"tableName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"public.cait_2_0_country_ghg_emissions_toplow2011"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"cartodb_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"number"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"the_geom"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"geometry"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"the_geom_webmercator"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"geometry"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"x"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"y"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"number"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"z"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
+   </span><span class="s2">"data"</span><span class="p">:[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e5c3e7c5-19ae-4ca0-a461-71f1f67aa553"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"layer"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"slug"</span><span class="p">:</span><span class="w"> </span><span class="s2">"total-co2-emissions-by-year"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"userId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5858f37140621f11066fb2f7"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"application"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"skydipper"</span><span class="w">
+          </span><span class="p">],</span><span class="w">
+          </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Total CO2 emissions by year"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"default"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"11de2bc1-368b-42ed-a207-aaff8ece752b"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cartodb"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"iso"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+          </span><span class="s2">"description"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"layerConfig"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"account"</span><span class="p">:</span><span class="w"> </span><span class="s2">"skydipper"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="s2">"maxzoom"</span><span class="p">:</span><span class="w"> </span><span class="mi">18</span><span class="p">,</span><span class="w">
+              </span><span class="s2">"minzoom"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+              </span><span class="s2">"layers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="w">
+                  </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mapnik"</span><span class="p">,</span><span class="w">
+                  </span><span class="s2">"options"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="s2">"sql"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SELECT * cait_2_0_country_ghg_emissions_filtered"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"cartocss"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"cartocss_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.3.0"</span><span class="w">
+                  </span><span class="p">}</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+              </span><span class="p">]</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="s2">"legendConfig"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"marks"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rect"</span><span class="p">,</span><span class="w">
+              </span><span class="s2">"from"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"data"</span><span class="p">:</span><span class="w"> </span><span class="s2">"table"</span><span class="w">
+              </span><span class="p">}</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">},</span><span class="w">
+          </span><span class="s2">"applicationConfig"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+          </span><span class="s2">"staticImageConfig"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
         </span><span class="p">}</span><span class="w">
-    </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+   </span><span class="p">],</span><span class="w">
+   </span><span class="s2">"links"</span><span class="p">:{</span><span class="w">
+      </span><span class="s2">"first"</span><span class="p">:</span><span class="s2">"https://api.skydipper.com/v1/layer?page%5Bnumber%5D=1"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"prev"</span><span class="p">:</span><span class="s2">"https://api.skydipper.com/v1/layer?page%5Bnumber%5D=1"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"next"</span><span class="p">:</span><span class="s2">"https://api.skydipper.com/v1/layer?page%5Bnumber%5D=2&amp;page%5Bsize%5D=10"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"last"</span><span class="p">:</span><span class="s2">"https://api.skydipper.com/v1/layer?page%5Bnumber%5D=64&amp;page%5Bsize%5D=10"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"self"</span><span class="p">:</span><span class="s2">"https://api.skydipper.com/v1/layer?page%5Bnumber%5D=1&amp;page%5Bsize%5D=10"</span><span class="w">
+   </span><span class="p">},</span><span class="w">
+   </span><span class="s2">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"total-pages"</span><span class="p">:</span><span class="w"> </span><span class="mi">63</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"total-items"</span><span class="p">:</span><span class="w"> </span><span class="mi">628</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"size"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
+   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
+<h3 id="filter-params">Filter params</h3>
+
+<p>Available filters:</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td style="text-align: center">Filter the layers whose name contains the filter text</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>dataset</td>
+<td style="text-align: center">Filter the layers by dataset uuid</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>sort</td>
+<td style="text-align: center">Sort json response by specific attributes</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>status</td>
+<td style="text-align: center">Filter layers on status (pending, saved, failed, all)</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>published</td>
+<td style="text-align: center">Filter layers on published status (true, false)</td>
+<td style="text-align: right">Boolean</td>
+</tr>
+<tr>
+<td>app</td>
+<td style="text-align: center">Filter layers on application (prep, gfw, etc..)</td>
+<td style="text-align: right">Text</td>
+</tr>
+<tr>
+<td>env</td>
+<td style="text-align: center">Environment in witch the layer was published, one of <code class="prettyprint">preproduction</code> or <code class="prettyprint">production</code></td>
+<td style="text-align: right">Text</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Return the layers filtered by those whose name contains emissions</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/layer?name<span class="o">=</span>emissions
+</code></pre>
+<blockquote>
+<p>Return the layers filtered by dataset</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/layer?dataset<span class="o">=</span>11de2bc1-368b-42ed-a207-aaff8ece752b
+curl -X GET https://api.skydipper.com/v1/dataset/11de2bc1-368b-42ed-a207-aaff8ece752b/layer
+</code></pre>
+<blockquote>
+<p>Sort by name</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/layer?sort<span class="o">=</span>name
+</code></pre>
+<blockquote>
+<p>Filter layers by status</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/layer?status<span class="o">=</span>failed
+</code></pre>
+<blockquote>
+<p>Filter layers by published status</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/layer?published<span class="o">=</span><span class="nb">false</span>
+</code></pre>
+<blockquote>
+<p>Return the layers filtered by those whose applications contain skydipper</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/layer?app<span class="o">=</span>skydipper
+</code></pre>
+<h3 id="pagination-params">Pagination params</h3>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>page[size]</td>
+<td style="text-align: center">Number elements per page</td>
+<td style="text-align: right">Number</td>
+</tr>
+<tr>
+<td>page[number]</td>
+<td style="text-align: center">Number of page</td>
+<td style="text-align: right">Number</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Return the layers of page 2 with 5 elements per page</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/layer?page[size]<span class="o">=</span>5&amp;page[number]<span class="o">=</span>2
+</code></pre>
+<h2 id="how-obtain-a-layer-for-specific-dataset">How obtain a layer for specific dataset</h2>
+
+<p>To obtain the layer:</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/dataset/11de2bc1-368b-42ed-a207-aaff8ece752b/layer/e5c3e7c5-19ae-4ca0-a461-71f1f67aa553
+curl -X GET https://api.skydipper.com/v1/layer/e5c3e7c5-19ae-4ca0-a461-71f1f67aa553
+</code></pre>
+<aside class="success">
+Remember — the response is jsonapi format
+</aside>
+
+<blockquote>
+<p>Example response:</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e5c3e7c5-19ae-4ca0-a461-71f1f67aa553"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"layer"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"slug"</span><span class="p">:</span><span class="w"> </span><span class="s2">"total-co2-emissions-by-year"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"userId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5858f37140621f11066fb2f7"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"application"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="s2">"skydipper"</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Total CO2 emissions by year"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"default"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"11de2bc1-368b-42ed-a207-aaff8ece752b"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cartodb"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"iso"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+      </span><span class="s2">"description"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"layerConfig"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"account"</span><span class="p">:</span><span class="w"> </span><span class="s2">"skydipper"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"maxzoom"</span><span class="p">:</span><span class="w"> </span><span class="mi">18</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"minzoom"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"layers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+              </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mapnik"</span><span class="p">,</span><span class="w">
+              </span><span class="s2">"options"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"sql"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SELECT * cait_2_0_country_ghg_emissions_filtered"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"cartocss"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"cartocss_version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.3.0"</span><span class="w">
+              </span><span class="p">}</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">]</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="s2">"legendConfig"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"marks"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rect"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"from"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"data"</span><span class="p">:</span><span class="w"> </span><span class="s2">"table"</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="s2">"applicationConfig"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+      </span><span class="s2">"staticImageConfig"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="s2">"meta"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"saved"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"published"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2017-01-23T16:51:42.571Z"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"createdAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2017-01-23T16:51:42.571Z"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<h2 id="create-a-layer">Create a Layer</h2>
+
+<p>To create a layer, you need to define all of the required fields in the request body. The fields that compose a layer are:</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+<th style="text-align: right">Values</th>
+<th style="text-align: right">Required</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td style="text-align: center">Name of the layer</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any Text</td>
+<td style="text-align: right">Yes</td>
+</tr>
+<tr>
+<td>description</td>
+<td style="text-align: center">Description of the dataset</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any text</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>application</td>
+<td style="text-align: center">Application to which the layer belongs</td>
+<td style="text-align: right">Array</td>
+<td style="text-align: right">gfw, forest-atlas, skydipper, prep, aqueduct, data4sdg</td>
+<td style="text-align: right">Yes</td>
+</tr>
+<tr>
+<td>layerConfig</td>
+<td style="text-align: center">Custom configuration</td>
+<td style="text-align: right">Object</td>
+<td style="text-align: right">Valid object</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>legendConfig</td>
+<td style="text-align: center">Custom configuration</td>
+<td style="text-align: right">Object</td>
+<td style="text-align: right">Valid object</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>applicationConfig</td>
+<td style="text-align: center">Custom configuration</td>
+<td style="text-align: right">Object</td>
+<td style="text-align: right">Valid object</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>staticImageConfig</td>
+<td style="text-align: center">Custom configuration</td>
+<td style="text-align: right">Object</td>
+<td style="text-align: right">Valid object</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>iso</td>
+<td style="text-align: center">Isos to which the layer belongs</td>
+<td style="text-align: right">Array</td>
+<td style="text-align: right">BRA, ES</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>dataset</td>
+<td style="text-align: center">UuId of the dataset</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Uuid of Dataset</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>protected</td>
+<td style="text-align: center">If it&rsquo;s a protected layer (not is possible to delete if it&rsquo;s true)</td>
+<td style="text-align: right">Boolean</td>
+<td style="text-align: right">true-false</td>
+<td style="text-align: right">No</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>To create a layer, you have to do a POST request with the following body:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/dataset/&lt;dataset_id&gt;/layer <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+    "application":[
+       "your", "apps"
+    ],
+    "name":"Example layer",
+    "status": 1
+}'</span>
+</code></pre>
+<blockquote>
+<p>The following structure was previously supported but should now be considered deprecated:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/dataset/&lt;dataset_id&gt;/layer <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "layer": {
+      "application":[
+         "your", "apps"
+      ],
+      "name":"Example layer",
+      "status": 1
+   }
+}'</span>
+</code></pre>
+<h2 id="update-a-layer">Update a Layer</h2>
+
+<p>To update a layer, you need to define all of the required fields in the request body. The fields that compose a layer are:</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th style="text-align: center">Description</th>
+<th style="text-align: right">Type</th>
+<th style="text-align: right">Values</th>
+<th style="text-align: right">Required</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td style="text-align: center">Name of the layer</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any Text</td>
+<td style="text-align: right">Yes</td>
+</tr>
+<tr>
+<td>description</td>
+<td style="text-align: center">Description of the dataset</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Any text</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>application</td>
+<td style="text-align: center">Application to which the layer belongs</td>
+<td style="text-align: right">Array</td>
+<td style="text-align: right">gfw, forest-atlas, skydipper, prep, aqueduct, data4sdg</td>
+<td style="text-align: right">Yes</td>
+</tr>
+<tr>
+<td>layerConfig</td>
+<td style="text-align: center">Custom configuration</td>
+<td style="text-align: right">Object</td>
+<td style="text-align: right">Valid object</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>legendConfig</td>
+<td style="text-align: center">Custom configuration</td>
+<td style="text-align: right">Object</td>
+<td style="text-align: right">Valid object</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>applicationConfig</td>
+<td style="text-align: center">Custom configuration</td>
+<td style="text-align: right">Object</td>
+<td style="text-align: right">Valid object</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>staticImageConfig</td>
+<td style="text-align: center">Custom configuration</td>
+<td style="text-align: right">Object</td>
+<td style="text-align: right">Valid object</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>iso</td>
+<td style="text-align: center">The isos to which the layer belongs</td>
+<td style="text-align: right">Array</td>
+<td style="text-align: right">BRA, ES</td>
+<td style="text-align: right">No</td>
+</tr>
+<tr>
+<td>dataset</td>
+<td style="text-align: center">UuId of the dataset</td>
+<td style="text-align: right">Text</td>
+<td style="text-align: right">Uuid of Dataset</td>
+<td style="text-align: right">No</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>To create a layer, you have to do a POST requestwith the following body:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X PATCH https://api.skydipper.com/v1/dataset/&lt;dataset_id&gt;/layer/&lt;layer_id&gt; <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "layer": {
+      "application":[
+         "your", "apps"
+      ],
+      "name":"New Example layer Name",
+      "layerConfig": {}
+   }
+}'</span>
+</code></pre>
+<h2 id="delete-a-layer">Delete a Layer</h2>
+<pre class="highlight shell"><code>curl -X DELETE https://api.skydipper.com/v1/dataset/&lt;dataset_id&gt;/layer/&lt;layer_id&gt; <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>
+</code></pre>
           <h1 id="metadata">Metadata</h1>
 
 <h2 id="metadata-definition">Metadata definition</h2>
@@ -1300,6 +1680,176 @@ type: [dataset]
       </span><span class="p">}</span><span class="w">
     </span><span class="p">}</span><span class="w">
   </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+          <h1 id="query">Query</h1>
+
+<p>In order to retrieve data from the datasets it is possible to send queries to the API using the SQL or Feature Service languages.</p>
+
+<p>Two different endpoints are provided (under the dataset path and a generic one) and the sql query can be provided via query parameters or in the body of a POST request.</p>
+<pre class="highlight shell"><code>curl -i -H <span class="s1">'Authorization: Bearer your-token&gt;'</span> -H <span class="s1">'Content-Type: application/json'</span> -XPOST <span class="s1">'http://api.skydipper.com/v1/query/&lt;dataset_id&gt;/'</span> -d <span class="s1">'{
+    "sql": "SELECT * FROM &lt;dataset_id&gt; limit 10"
+}
+'</span>
+</code></pre><pre class="highlight shell"><code>curl -i -XGET http<span class="se">\:</span>//api.skydipper.com/v1/query<span class="se">\?</span>sql<span class="se">\=</span>SELECT<span class="se">\ \*\ </span>from<span class="se">\ </span>&lt;dataset.slug&gt;
+</code></pre>
+<aside class="notice">
+While we aim to make our query interface as broad and transparent as possible, some of the querying options described 
+below will not be available for specific dataset providers, depending on this API&rsquo;s implementation or limitations on the
+actual data provider&rsquo;s side.
+</aside>
+
+<h2 id="select-clause">Select clause</h2>
+
+<p>The <code class="prettyprint">SELECT</code> part of the queries supports naming columns, <strong>alias</strong>, <strong>math operations</strong>, <strong>DISTINCT</strong>, <strong>COUNT</strong>, <strong>SQL functions</strong> and <strong>PostGIS functions</strong></p>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+
+<span class="k">SELECT</span> <span class="k">sum</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="k">avg</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="k">max</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="k">min</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="k">min</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">as</span> <span class="n">minimum</span> <span class="k">FROM</span> <span class="k">table</span>
+
+<span class="k">SELECT</span> <span class="n">ST_valueCount</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+</code></pre>
+<h2 id="from-clause">From clause</h2>
+
+<p>It is possible to refer to a dataset by using its <strong>table name</strong>, <strong>slug</strong> or <strong>id</strong>. </p>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="p">.</span><span class="n">tableName</span><span class="o">&gt;</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="p">.</span><span class="n">slug</span><span class="o">&gt;</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="p">.</span><span class="n">id</span><span class="o">&gt;</span>
+</code></pre>
+<h2 id="where-clause">Where clause</h2>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="mi">2</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">&lt;</span> <span class="mi">2</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">&gt;=</span> <span class="mi">2</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">and</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="mi">2</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">text</span> <span class="k">like</span> <span class="s1">'a%'</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">st_intersects</span><span class="p">(</span><span class="n">st_setsrid</span><span class="p">(</span><span class="n">st_geomfromgeojson</span><span class="p">(</span><span class="s1">'{}'</span><span class="p">),</span> <span class="mi">4326</span><span class="p">),</span> <span class="n">the_geom</span><span class="p">)</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="k">data</span> <span class="k">BETWEEN</span> <span class="mi">1</span> <span class="k">AND</span> <span class="mi">3</span>
+</code></pre>
+<h2 id="group-by-clause">Group by clause</h2>
+
+<p>It is possible to group results by <strong>column name</strong>, <strong>SQL functions</strong> and <strong>PostGIS functions</strong>.
+Special grouping operations are available for document-type datasets (CSV and JSON) - see <a href="https://github.com/NLPchina/elasticsearch-sql/tree/5.5.2.0#beyond-sql">this link</a> for more info.</p>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">columnOne</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">columnOne</span><span class="p">,</span> <span class="n">columnTwo</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">ST_GeoHash</span><span class="p">(</span><span class="n">the_geom_point</span><span class="p">,</span><span class="mi">8</span><span class="p">)</span>
+
+<span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">a</span>
+<span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">ST_GeoHash</span><span class="p">(</span><span class="n">the_geom</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+</code></pre><pre class="highlight sql"><code><span class="cm">/* Only supported in document-type datasets - see https://github.com/NLPchina/elasticsearch-sql/tree/5.5.2.0#beyond-sql for full details */</span>
+<span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="n">age</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">range</span><span class="p">(</span><span class="n">age</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">35</span><span class="p">,</span><span class="mi">40</span><span class="p">)</span> 
+<span class="k">SELECT</span> <span class="n">online</span> <span class="k">FROM</span> <span class="n">online</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">date_histogram</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">'insert_time'</span><span class="p">,</span><span class="s1">'interval'</span><span class="o">=</span><span class="s1">'1d'</span><span class="p">)</span>
+<span class="k">SELECT</span> <span class="n">online</span> <span class="k">FROM</span> <span class="n">online</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">date_range</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">'insert_time'</span><span class="p">,</span><span class="s1">'format'</span><span class="o">=</span><span class="s1">'yyyy-MM-dd'</span> <span class="p">,</span><span class="s1">'2014-08-18'</span><span class="p">,</span><span class="s1">'2014-08-17'</span><span class="p">,</span><span class="s1">'now-8d'</span><span class="p">,</span><span class="s1">'now-7d'</span><span class="p">,</span><span class="s1">'now-6d'</span><span class="p">,</span><span class="s1">'now'</span><span class="p">)</span>
+</code></pre>
+<h2 id="order-by-clause">Order by clause</h2>
+
+<p>It is possible to order results by <strong>column name</strong>, <strong>SQL functions</strong> and <strong>PostGIS functions</strong></p>
+
+<h2 id="limit-and-offset-clause">Limit and offset clause</h2>
+
+<p>You can specify <code class="prettyprint">limit</code> and <code class="prettyprint">offset</code> clauses</p>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">limit</span><span class="o">=</span><span class="mi">20</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">limit</span><span class="o">=</span><span class="mi">20</span> <span class="k">offset</span> <span class="mi">10</span>
+</code></pre>
+<h2 id="raster-queries-available">Raster queries available</h2>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="n">ST_METADATA</span><span class="p">(</span><span class="n">rast</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">ST_BANDMETADATA</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="n">occurrence</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">ST_SUMMARYSTATS</span><span class="p">()</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">ST_HISTOGRAM</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">auto</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">ST_valueCount</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+</code></pre>
+<h2 id="freeze-query">Freeze query</h2>
+
+<p>It is possible generate a json file in a bucket of the sql result. You only need send a query param freeze with value true and you will obtain the url of the json file.</p>
+
+<aside class="notice">
+    This is an authenticated feature!
+</aside>
+<pre class="highlight shell"><code>curl -i -XGET http<span class="se">\:</span>//api.skydipper.com/v1/query<span class="se">\?</span>sql<span class="se">\=</span>SELECT<span class="se">\ \*\ </span>from<span class="se">\ </span>&lt;dataset.slug&gt;&amp;freeze<span class="o">=</span><span class="nb">true</span>
+</code></pre>
+<h2 id="download">Download</h2>
+
+<p>You can download the result of a query using the <code class="prettyprint">download</code> endpoint. </p>
+
+<aside class="warning">
+    <ul>
+    This endpoint is not neccesarily supported for all dataset providers. The following dataset connector provide support for downloads:
+        <li>Google Earth Engine</li>
+        <li>Carto</li>
+        <li>ArcGIS FeatureService</li>
+    </ul>
+</aside>
+<pre class="highlight shell"><code><span class="c"># The id of the dataset is part of the URL</span>
+curl -XGET https://api.skydipper.com/v1/download/&lt;dataset.id&gt;?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.tableName&gt;
+
+<span class="c"># The id of the dataset is in the FROM clause</span>
+curl -XGET https://api.skydipper.com/v1/download?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.id&gt;
+</code></pre>
+<p>There are two ways to call it:</p>
+
+<ul>
+<li>you can either specify the id of the dataset in the URL</li>
+<li>or you can pass it as part of the SQL query (in the FROM clause)</li>
+</ul>
+
+<p>You can also specify which file type you want to download (JSON or CSV), except for Google Earth Engine datasets (only JSON).</p>
+
+<aside class="notice">
+    By default, the API will return a CSV file (JSON file for Google Earth Engine).
+</aside>
+<pre class="highlight shell"><code><span class="c"># The format is explicitly set</span>
+curl -XGET https://api.skydipper.com/v1/download/&lt;dataset.id&gt;?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.tableName&gt;&amp;format<span class="o">=</span>json
+curl -XGET https://api.skydipper.com/v1/download/&lt;dataset.id&gt;?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.tableName&gt;&amp;format<span class="o">=</span>csv
+</code></pre>
+          <h1 id="fields">Fields</h1>
+
+<h2 id="what-are-fields">What are fields?</h2>
+
+<p>Fields can be defined as the dataset properties. These fields are automatically generated when a dataset is created.</p>
+
+<h2 id="how-to-get-the-dataset-fields">How to get the dataset fields</h2>
+
+<p>Once the dataset is properly created and saved, it is possible to access to its fields as well as getting some information about them.</p>
+
+<p>To do that, it is necessary to use of the following endpoint:</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/fields/&lt;dataset-id&gt;
+</code></pre>
+<blockquote>
+<p>Real example</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/fields/1170030b-9725-4bfe-8fb4-1b0eb81020d2
+</code></pre>
+<blockquote>
+<p>Response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"tableName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"public.cait_2_0_country_ghg_emissions_toplow2011"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"cartodb_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"number"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"the_geom"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"geometry"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"the_geom_webmercator"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"geometry"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"x"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"y"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"number"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"z"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
           <h1 id="geostore">Geostore</h1>
@@ -1828,316 +2378,368 @@ To import the geojson in geostore, you need to define all of the required fields
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-          <h1 id="favorites">Favorites</h1>
+          <h1 id="geodescriber">Geodescriber</h1>
 
-<p>The users can save their own favorites resources of the API.</p>
+<h2 id="what-is-geodescriber">What is Geodescriber?</h2>
+
+<p>Geodesriber is blah.</p>
 
 <aside class="notice">
-Remember — All favorite endpoints need to be authenticated.
+Remember — All endpoint of geostore don&rsquo;t need that you are authenticated.
 </aside>
 
-<table><thead>
-<tr>
-<th>Field</th>
-<th style="text-align: center">Description</th>
-<th style="text-align: right">Type</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>id</td>
-<td style="text-align: center">Name</td>
-<td style="text-align: right">Text</td>
-</tr>
-<tr>
-<td>resourceId</td>
-<td style="text-align: center">Id of the resource</td>
-<td style="text-align: right">Text</td>
-</tr>
-<tr>
-<td>resourceType</td>
-<td style="text-align: center">Type of resource</td>
-<td style="text-align: right">Text (dataset)</td>
-</tr>
-<tr>
-<td>userId</td>
-<td style="text-align: center">Id of the owner user</td>
-<td style="text-align: right">Text</td>
-</tr>
-<tr>
-<td>createdAt</td>
-<td style="text-align: center">Creation date</td>
-<td style="text-align: right">Date</td>
-</tr>
-</tbody></table>
+<h2 id="call-geodescriber">Call Geodescriber</h2>
 
-<h2 id="create-favorite">Create Favorite</h2>
-
-<p>To create a favorite, you need to define all next fields in the request body. The required fields that compose a favorite are:</p>
-
-<table><thead>
-<tr>
-<th>Field</th>
-<th style="text-align: center">Description</th>
-<th style="text-align: right">Type</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>resourceId</td>
-<td style="text-align: center">Id of the resource</td>
-<td style="text-align: right">Text</td>
-</tr>
-<tr>
-<td>resourceType</td>
-<td style="text-align: center">Type of resource</td>
-<td style="text-align: right">Text (dataset)</td>
-</tr>
-</tbody></table>
+<p>You can use it in</p>
 
 <blockquote>
-<p>To create a favorite, you have to do a POST with the following body:</p>
+<p>To create a Geostore, you have to do a POST query with the following body:</p>
 </blockquote>
-<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/favourite <span class="se">\</span>
--H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/geodescriber <span class="se">\</span>
 -H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
  <span class="s1">'{
-   "resourceType":"&lt;resourceType&gt;",
-   "resourceId": "&lt;resourceId&gt;"
+   "geojson": &lt;yourGeoJSONObject&gt;
   }'</span>
 </code></pre>
-<h2 id="get-favorites">Get favorites</h2>
-
-<p>This endpoint returns the favorites of the logged user.</p>
-
 <blockquote>
-<p>To get all favorite of the logged user, you have to do a GET request:</p>
+<p>Real example</p>
 </blockquote>
-<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/favourite <span class="se">\</span>
--H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
-</code></pre>
-<p>You can also retrieve all data about the resources by including the query parameter &ldquo;include=true&rdquo; in the request.</p>
-<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/favourite?include<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
--H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
-</code></pre>
-<h2 id="get-favorite-by-id">Get favorite by id</h2>
-
-<p>This endpoint returns the favorite with id of the param. If the favorite belongs to other user or not exist, the endpoint returns 400.</p>
-
-<blockquote>
-<p>To get the favorite by id, you have to do a GET request:</p>
-</blockquote>
-<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/favourite/:id <span class="se">\</span>
--H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
-</code></pre>
-<h2 id="delete-favorite">Delete favorite</h2>
-
-<p>This endpoint deletes the favorite with id of the param. If the favorite belongs to other user or not exist, the endpoint returns 400.</p>
-
-<blockquote>
-<p>To delete the favorite by id, you have to do a DELETE request:</p>
-</blockquote>
-<pre class="highlight shell"><code>curl -X DELETE https://api.skydipper.com/v1/favourite/:id <span class="se">\</span>
--H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
-</code></pre>
-          <h1 id="areas">Areas</h1>
-
-<p>The following area endpoints are available</p>
-
-<h2 id="get-user-areas">Get user areas</h2>
-
-<p>Returns the list of areas created by the user provided</p>
-
-<h3 id="parameters">Parameters</h3>
-
-<table><thead>
-<tr>
-<th>Parameter</th>
-<th style="text-align: center">Description</th>
-<th style="text-align: right">Type</th>
-<th style="text-align: right">Values</th>
-<th style="text-align: right">Required</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>application</td>
-<td style="text-align: center">Application</td>
-<td style="text-align: right">Text</td>
-<td style="text-align: right">Any Text, values separated by commas</td>
-<td style="text-align: right">No</td>
-</tr>
-</tbody></table>
-<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/area?application<span class="o">=</span>&lt;application&gt;
--H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
-</code></pre>
-<h3 id="example">Example</h3>
-
-<p>Areas created by an user for the application skydipper.</p>
-<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/area?application<span class="o">=</span>skydipper
--H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
-</code></pre><pre class="highlight plaintext"><code>{
-  "data": [
-    {
-      "type": "area",
-      "id": "59ca3213d08a7d001054522b",
-      "attributes": {
-        "name": "Test area France",
-        "application": "skydipper",
-        "geostore": "8f77fe62cf15d5098ba0ee11c5126aa6",
-        "userId": "58e22f662071c01c02f76a0f",
-        "createdAt": "2017-09-26T10:55:15.990Z",
-        "image": "",
-        "datasets": [
-
-        ],
-        "use": {
-
-        },
-        "iso": {
-
-        }
-      }
-    },
-    {
-      "type": "area",
-      "id": "59ca32ea3209db0014e9a7b7",
-      "attributes": {
-        "name": "Test custom area",
-        "application": "skydipper",
-        "geostore": "b12640deba9d3c5012c5359dd5572e2d",
-        "userId": "58e22f662071c01c02f76a0f",
-        "createdAt": "2017-09-26T10:58:50.226Z",
-        "image": "",
-        "datasets": [
-
-        ],
-        "use": {
-
-        },
-        "iso": {
-
-        }
-      }
-    }
-  ]
-}
-</code></pre>
-<h2 id="create-area">Create area</h2>
-
-<p>Creates a new area</p>
-
-<h3 id="parameters">Parameters</h3>
-
-<table><thead>
-<tr>
-<th>Parameter</th>
-<th style="text-align: center">Description</th>
-<th style="text-align: right">Type</th>
-<th style="text-align: right">Values</th>
-<th style="text-align: right">Required</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>application</td>
-<td style="text-align: center">Application</td>
-<td style="text-align: right">Text</td>
-<td style="text-align: right">Any Text, values separated by commas</td>
-<td style="text-align: right">Yes</td>
-</tr>
-<tr>
-<td>name</td>
-<td style="text-align: center">Name of the new area</td>
-<td style="text-align: right">Text</td>
-<td style="text-align: right">Any Text</td>
-<td style="text-align: right">Yes</td>
-</tr>
-<tr>
-<td>geostore</td>
-<td style="text-align: center">Geostore ID</td>
-<td style="text-align: right">Text</td>
-<td style="text-align: right">Any Text</td>
-<td style="text-align: right">Yes</td>
-</tr>
-</tbody></table>
-<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/area <span class="se">\</span>
--H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/geostore <span class="se">\</span>
 -H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
  <span class="s1">'{
-   "name": &lt;name&gt;,
-   "application": &lt;application&gt;,
-   "geostore": &lt;geostore id&gt;
- }'</span>
-</code></pre>
-<h3 id="example">Example</h3>
+   "geojson":{
+      "type":"FeatureCollection",
+      "features":[
+         {
+            "type":"Feature",
+            "properties":{
 
-<p>Create an area with name &lsquo;Portugal area&rsquo; and Geostore ID &#39;713899292fc118a915741728ef84a2a7&rsquo; for the Skydipper application</p>
-<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/area?application<span class="o">=</span>skydipper <span class="se">\</span>
--H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+            },
+            "geometry":{
+               "type":"LineString",
+               "coordinates":[
+                  [
+                     -3.9942169189453125,
+                     41.044922165782175
+                  ],
+                  [
+                     -3.995418548583985,
+                     41.03767166215326
+                  ],
+                  [
+                     -3.9842605590820312,
+                     41.03844854003296
+                  ],
+                  [
+                     -3.9844322204589844,
+                     41.04589315472392
+                  ],
+                  [
+                     -3.9942169189453125,
+                     41.044922165782175
+                  ]
+               ]
+            }
+         },
+         {
+            "type":"Feature",
+            "properties":{
+
+            },
+            "geometry":{
+               "type":"Polygon",
+               "coordinates":[
+                  [
+                     [
+                        -4.4549560546875,
+                        40.84706035607122
+                     ],
+                     [
+                        -4.4549560546875,
+                        41.30257109430557
+                     ],
+                     [
+                        -3.5211181640624996,
+                        41.30257109430557
+                     ],
+                     [
+                        -3.5211181640624996,
+                        40.84706035607122
+                     ],
+                     [
+                        -4.4549560546875,
+                        40.84706035607122
+                     ]
+                  ]
+               ]
+            }
+         }
+      ]
+   }
+}'</span>
+</code></pre>
+<p>The response will be 200 if the geostore saves correctly and returns the geostore object with all information:</p>
+
+<blockquote>
+<p>Example response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+   </span><span class="s2">"data"</span><span class="p">:{</span><span class="w">
+      </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"geoStore"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"c9bacccfb9c3fe225dc67545bb93a5cb"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"attributes"</span><span class="p">:{</span><span class="w">
+         </span><span class="s2">"geojson"</span><span class="p">:{</span><span class="w">
+            </span><span class="s2">"features"</span><span class="p">:[</span><span class="w">
+               </span><span class="p">{</span><span class="w">
+                  </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"Feature"</span><span class="p">,</span><span class="w">
+                  </span><span class="s2">"geometry"</span><span class="p">:{</span><span class="w">
+                     </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"Polygon"</span><span class="p">,</span><span class="w">
+                     </span><span class="s2">"coordinates"</span><span class="p">:[</span><span class="w">
+                        </span><span class="p">[</span><span class="w">
+                           </span><span class="p">[</span><span class="w">
+                              </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
+                              </span><span class="mf">40.84706035607122</span><span class="w">
+                           </span><span class="p">],</span><span class="w">
+                           </span><span class="p">[</span><span class="w">
+                              </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
+                              </span><span class="mf">41.30257109430557</span><span class="w">
+                           </span><span class="p">],</span><span class="w">
+                           </span><span class="p">[</span><span class="w">
+                              </span><span class="mf">-3.5211181640624996</span><span class="p">,</span><span class="w">
+                              </span><span class="mf">41.30257109430557</span><span class="w">
+                           </span><span class="p">],</span><span class="w">
+                           </span><span class="p">[</span><span class="w">
+                              </span><span class="mf">-3.5211181640624996</span><span class="p">,</span><span class="w">
+                              </span><span class="mf">40.84706035607122</span><span class="w">
+                           </span><span class="p">],</span><span class="w">
+                           </span><span class="p">[</span><span class="w">
+                              </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
+                              </span><span class="mf">40.84706035607122</span><span class="w">
+                           </span><span class="p">]</span><span class="w">
+                        </span><span class="p">]</span><span class="w">
+                     </span><span class="p">]</span><span class="w">
+                  </span><span class="p">}</span><span class="w">
+               </span><span class="p">}</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="s2">"crs"</span><span class="p">:{</span><span class="w">
+
+            </span><span class="p">},</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"FeatureCollection"</span><span class="w">
+         </span><span class="p">},</span><span class="w">
+         </span><span class="s2">"hash"</span><span class="p">:</span><span class="s2">"c9bacccfb9c3fe225dc67545bb93a5cb"</span><span class="p">,</span><span class="w">
+         </span><span class="s2">"provider"</span><span class="p">:{</span><span class="w">
+
+         </span><span class="p">},</span><span class="w">
+         </span><span class="s2">"areaHa"</span><span class="p">:</span><span class="mf">397372.34122605197</span><span class="p">,</span><span class="w">
+         </span><span class="s2">"bbox"</span><span class="p">:[</span><span class="w">
+            </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
+            </span><span class="mf">40.84706035607122</span><span class="p">,</span><span class="w">
+            </span><span class="mf">-3.5211181640624996</span><span class="p">,</span><span class="w">
+            </span><span class="mf">41.30257109430557</span><span class="w">
+         </span><span class="p">]</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+   </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+          <h1 id="basemaps">Basemaps</h1>
+
+<p>Basemap service details.</p>
+<pre class="highlight shell"><code>curl -i -H <span class="s1">'Authorization: Bearer your-token&gt;'</span> -H <span class="s1">'Content-Type: application/json'</span> -XPOST <span class="s1">'http://api.skydipper.com/v1/basemaps/&lt;year&gt;/&lt;x&gt;/&lt;y&gt;/&lt;z&gt;/'</span> -d <span class="s1">'{
+    "sql": "SELECT * FROM &lt;dataset_id&gt; limit 10"
+}
+'</span>
+</code></pre>
+<aside class="notice">
+blah thing
+</aside>
+
+<h2 id="blah">blah</h2>
+
+<p>Text goes here.</p>
+<pre class="highlight shell"><code>curl -i -XGET http<span class="se">\:</span>//api.skydipper.com/v1/basemap/year/...
+</code></pre>
+          <h1 id="recent-imagery">Recent Imagery</h1>
+
+<h2 id="what-is-recent-imagery">What is Recent Imagery?</h2>
+
+<p>RI is blah.</p>
+
+<h2 id="call-recent-imagery">Call Recent Imagery</h2>
+
+<p>You can use it in</p>
+
+<blockquote>
+<p>To obtain a recent imagery, you have to do a POST query with the following body:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/geodescriber <span class="se">\</span>
 -H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
  <span class="s1">'{
-   "name": "Portugal area",
-   "application": "skydipper",
-   "geostore": "713899292fc118a915741728ef84a2a7"
- }'</span>
-</code></pre><pre class="highlight plaintext"><code>{
-  "data": {
-    "type": "area",
-    "id": "5a0da028e6d876001080c259",
-    "attributes": {
-      "name": "Portugal area",
-      "application": "skydipper",
-      "geostore": "713899292fc118a915741728ef84a2a7",
-      "userId": "58e22f662071c01c02f76a0f",
-      "createdAt": "2017-11-16T14:26:48.396Z",
-      "image": "",
-      "datasets": [
-
-      ],
-      "use": {
-
-      },
-      "iso": {
-
-      }
-    }
-  }
-}
+   "geojson": &lt;yourGeoJSONObject&gt;
+  }'</span>
 </code></pre>
-<h2 id="delete-area">Delete area</h2>
+<blockquote>
+<p>Real example</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/geostore <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "geojson":{
+      "type":"FeatureCollection",
+      "features":[
+         {
+            "type":"Feature",
+            "properties":{
 
-<p>Deletes an area</p>
-<pre class="highlight shell"><code>curl -X DELETE https://api.skydipper.com/v1/area/&lt;area-id&gt; <span class="se">\</span>
--H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
-</code></pre>
-<h3 id="example">Example</h3>
-<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/area/59ca3213d08a7d001054522b <span class="se">\</span>
--H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
-</code></pre>
-<h2 id="get-area">Get area</h2>
+            },
+            "geometry":{
+               "type":"LineString",
+               "coordinates":[
+                  [
+                     -3.9942169189453125,
+                     41.044922165782175
+                  ],
+                  [
+                     -3.995418548583985,
+                     41.03767166215326
+                  ],
+                  [
+                     -3.9842605590820312,
+                     41.03844854003296
+                  ],
+                  [
+                     -3.9844322204589844,
+                     41.04589315472392
+                  ],
+                  [
+                     -3.9942169189453125,
+                     41.044922165782175
+                  ]
+               ]
+            }
+         },
+         {
+            "type":"Feature",
+            "properties":{
 
-<p>Gets all the information from an area</p>
-<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/area/&lt;area-id&gt; <span class="se">\</span>
--H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
+            },
+            "geometry":{
+               "type":"Polygon",
+               "coordinates":[
+                  [
+                     [
+                        -4.4549560546875,
+                        40.84706035607122
+                     ],
+                     [
+                        -4.4549560546875,
+                        41.30257109430557
+                     ],
+                     [
+                        -3.5211181640624996,
+                        41.30257109430557
+                     ],
+                     [
+                        -3.5211181640624996,
+                        40.84706035607122
+                     ],
+                     [
+                        -4.4549560546875,
+                        40.84706035607122
+                     ]
+                  ]
+               ]
+            }
+         }
+      ]
+   }
+}'</span>
 </code></pre>
-<h3 id="example">Example</h3>
-<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/area/59ca32ea3209db0014e9a7b7 <span class="se">\</span>
--H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span> <span class="se">\</span>
-</code></pre><pre class="highlight plaintext"><code>{
-    "data": {
-        "type": "area",
-        "id": "59ca32ea3209db0014e9a7b7",
-        "attributes": {
-            "name": "Test custom area",
-            "application": "skydipper",
-            "geostore": "b12640deba9d3c5012c5359dd5572e2d",
-            "userId": "58e22f662071c01c02f76a0f",
-            "createdAt": "2017-09-26T10:58:50.226Z",
-            "image": "",
-            "datasets": [],
-            "use": {},
-            "iso": {}
-        }
-    }
-}
+<p>The response will be 200 if the geostore saves correctly and returns the geostore object with all information:</p>
+
+<blockquote>
+<p>Example response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+   </span><span class="s2">"data"</span><span class="p">:{</span><span class="w">
+      </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"geoStore"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"c9bacccfb9c3fe225dc67545bb93a5cb"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"attributes"</span><span class="p">:{</span><span class="w">
+         </span><span class="s2">"geojson"</span><span class="p">:{</span><span class="w">
+            </span><span class="s2">"features"</span><span class="p">:[</span><span class="w">
+               </span><span class="p">{</span><span class="w">
+                  </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"Feature"</span><span class="p">,</span><span class="w">
+                  </span><span class="s2">"geometry"</span><span class="p">:{</span><span class="w">
+                     </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"Polygon"</span><span class="p">,</span><span class="w">
+                     </span><span class="s2">"coordinates"</span><span class="p">:[</span><span class="w">
+                        </span><span class="p">[</span><span class="w">
+                           </span><span class="p">[</span><span class="w">
+                              </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
+                              </span><span class="mf">40.84706035607122</span><span class="w">
+                           </span><span class="p">],</span><span class="w">
+                           </span><span class="p">[</span><span class="w">
+                              </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
+                              </span><span class="mf">41.30257109430557</span><span class="w">
+                           </span><span class="p">],</span><span class="w">
+                           </span><span class="p">[</span><span class="w">
+                              </span><span class="mf">-3.5211181640624996</span><span class="p">,</span><span class="w">
+                              </span><span class="mf">41.30257109430557</span><span class="w">
+                           </span><span class="p">],</span><span class="w">
+                           </span><span class="p">[</span><span class="w">
+                              </span><span class="mf">-3.5211181640624996</span><span class="p">,</span><span class="w">
+                              </span><span class="mf">40.84706035607122</span><span class="w">
+                           </span><span class="p">],</span><span class="w">
+                           </span><span class="p">[</span><span class="w">
+                              </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
+                              </span><span class="mf">40.84706035607122</span><span class="w">
+                           </span><span class="p">]</span><span class="w">
+                        </span><span class="p">]</span><span class="w">
+                     </span><span class="p">]</span><span class="w">
+                  </span><span class="p">}</span><span class="w">
+               </span><span class="p">}</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="s2">"crs"</span><span class="p">:{</span><span class="w">
+
+            </span><span class="p">},</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"FeatureCollection"</span><span class="w">
+         </span><span class="p">},</span><span class="w">
+         </span><span class="s2">"hash"</span><span class="p">:</span><span class="s2">"c9bacccfb9c3fe225dc67545bb93a5cb"</span><span class="p">,</span><span class="w">
+         </span><span class="s2">"provider"</span><span class="p">:{</span><span class="w">
+
+         </span><span class="p">},</span><span class="w">
+         </span><span class="s2">"areaHa"</span><span class="p">:</span><span class="mf">397372.34122605197</span><span class="p">,</span><span class="w">
+         </span><span class="s2">"bbox"</span><span class="p">:[</span><span class="w">
+            </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
+            </span><span class="mf">40.84706035607122</span><span class="p">,</span><span class="w">
+            </span><span class="mf">-3.5211181640624996</span><span class="p">,</span><span class="w">
+            </span><span class="mf">41.30257109430557</span><span class="w">
+         </span><span class="p">]</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+   </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+          <h1 id="composite-imagery">Composite Imagery</h1>
+
+<h2 id="what-is-the-composite-imagery-service">What is the Composite Imagery service?</h2>
+
+<p>CI is blah.</p>
+
+<h2 id="call-the-composite-imagery-service">Call the Composite Imagery Service</h2>
+
+<p>You can use it in</p>
+
+<blockquote>
+<p>To obtain a recent imagery, you have to do a POST query with the following body:</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/geodescriber <span class="se">\</span>
+-H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
+ <span class="s1">'{
+   "geojson": &lt;yourGeoJSONObject&gt;
+  }'</span>
 </code></pre>
+<h2 id="obtaining-dem-data">Obtaining DEM data</h2>
+
+<p>You can get Digital Elevation Model data for your service by&hellip;</p>
+
           <h1 id="user-management">User Management</h1>
 
 <p>The following endpoints expose the API&rsquo;s functionality regarding user management.
