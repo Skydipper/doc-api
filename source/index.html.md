@@ -11,12 +11,15 @@ toc_footers:
 includes:
   - api/authentication
   - api/dataset
+  - api/layer
+  - api/metadata
   - api/query
   - api/fields
-  - api/metadata
   - api/geostore
-  - api/favourites
-  - api/areas
+  - api/geodescriber
+  - api/basemaps
+  - api/recent_imagery
+  - api/composite
   - api/user_management
   - api/microservices
   - errors
