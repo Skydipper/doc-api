@@ -13,9 +13,10 @@ includes:
   - api/dataset
   - api/layer
   - api/metadata
+  - api/geostore
+  - api/geodoctor
   - api/query
   - api/fields
-  - api/geostore
   - api/geodescriber
   - api/basemaps
   - api/recent_imagery
