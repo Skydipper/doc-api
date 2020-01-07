@@ -5,13 +5,12 @@ Service for statistical analysis tools.
 
 ## Trends
 
-Examine long-term changes in a 1-D dataset, using moving average (box-car) detreding and
-Monte Carlo resampling to calculate the significance of the low-pass variance.
+Examine long-term changes in a 1-D dataset, using moving average (box-car) de-treding (i.e. low-pass filter) and
+a Monte Carlo resampling to calculate the significance of the low-frequency variance.
 
 
 ```python
-#url = "https://api.skydipper.com/v1/geoai/trends"
-url = "http://localhost:4504/api/v1/geoai/trends"
+url = "https://api.skydipper.com/v1/geoai/trends"
 
 querystring = {"mc_number":"10000",
                "bin_number":"100",
