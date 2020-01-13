@@ -158,6 +158,109 @@ curl -X POST http://api.skydipper.com/auth/login <span class="se">\</span>
 </code></pre>
 <p>Refer to <a href="#user-management">user management</a> for more information on the operations available in the Skydipper API for managing user accounts, token generation, etc.</p>
 
+          <h1 id="basemaps">Basemaps</h1>
+
+<p>The Basemap microservice serves pre-calculated and dynamic tiles for Layer objects and several pre-built styles.
+The code for this service can be found <a href="https://github.com/Skydipper/Basemaps">here</a>.</p>
+
+<h2 id="annual-landsat-basemaps">Annual Landsat Basemaps</h2>
+
+<p>We have created satellite basemaps based off of the NASA/USGS Landsat satellite collection. These are avaiable as <a href="https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames">slippy map tiles</a>.
+We are continuing to add years of coverage to our Landsat Basemap collection. The collection we have currently processed
+is avaiable via <code class="prettyprint">https://api.skydipper.com/v1/landsat/&lt;year&gt;/&lt;z&gt;/&lt;x&gt;/&lt;y&gt;</code>.</p>
+
+<p>The service mixes pre-cached and dynamic tiles. The dynamic tiles kick-in at z&gt;11.</p>
+<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s">"http://api.skydipper.com/v1/basemaps/landsat/2016/14/8473/7643"</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'./image_test.jpg'</span><span class="p">,</span> <span class="s">'wb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handler</span><span class="p">:</span>
+    <span class="n">handler</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</code></pre>
+<h2 id="layer-basemaps">Layer Basemaps</h2>
+
+<p>Appropriate layers in Skydipper (i.e. geospatial data, with either the EE or CartoDB provider and visulisation properties)
+can be visulised as map tiles by calling <code class="prettyprint">https://api.skydipper.com/v1/basemaps/layer/&lt;layer_id&gt;/&lt;z&gt;/&lt;x&gt;/&lt;y&gt;</code>.</p>
+
+<aside class="notice">
+Rember, you can set the styles that control how the layer will appear using inside the Layer object. The style you set
+should use either CartoCSS, mapbox vector styels, or the open standard SLD method (for rasters) depending on the data.
+</aside>
+<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s">"http://api.skydipper.com/v1/basemaps/layer/e7070d5f-3d38-46b1-86eb-e98782da55dd/14/8473/7643"</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">status_code</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'./image_test.jpg'</span><span class="p">,</span> <span class="s">'wb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">handler</span><span class="p">:</span>
+    <span class="n">handler</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</code></pre>
+<h2 id="movie-tiles">Movie tiles</h2>
+
+<p>Coming soon.</p>
+
+          <h1 id="composite-imagery">Composite Imagery</h1>
+
+<p>The Composite service enables the creation of on-the-fly composites based on either Landsat-8, or Sentinel-2
+and a Geostore geometry ID. Composites can be returned in a variety of formats, either as url links to
+thumbnail and slippy map (z/x/y) tile assets, or as a zip folder containing image assets.</p>
+
+<p>Band visulisations can be given as argument to visulise any bands of interest in RGB space.
+Digital Elevation Model (DEM) image assets can also be returned with the <code class="prettyprint">get_dem</code>=True flag.</p>
+
+<p>Code for the Composite service is <a href="https://github.com/Skydipper/Composite">hosted on Github</a>.</p>
+
+<h2 id="thumbnails-and-slippy-maps">Thumbnails and slippy maps</h2>
+
+<p>By default, the service accepts a Gestore id hash as an argument via the <code class="prettyprint">geostore</code> param in a <em>GET</em> request.
+The response is JSON containing urls (with tokens valid for 2 days), linking to Z/X/Y type (slippy) maps, as well as
+a thumbnail, and a greyscale Digital Elevation Model (DEM) output (if <code class="prettyprint">get_dem</code> is set to <em>True</em>).</p>
+<pre class="highlight python"><code><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s">"geostore"</span><span class="p">:</span> <span class="s">"&lt;geostore_id&gt;"</span><span class="p">,</span>
+          <span class="s">"get_dem"</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+          <span class="s">"date_range"</span><span class="p">:</span> <span class="s">"[2018-01-01, 2018-12-01]"</span><span class="p">,</span>
+          <span class="s">"thumb_size"</span><span class="p">:</span> <span class="s">"[500, 500]"</span><span class="p">,</span>
+          <span class="s">"instrument"</span><span class="p">:</span> <span class="s">"landsat"</span><span class="p">,</span>
+          <span class="s">"cloudscore_thresh"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+          <span class="s">"band_vizz"</span><span class="p">:</span> <span class="s">"{'bands': ['B4', 'B3', 'B2'], 'min': 0, 'max': 0.4}"</span><span class="p">,</span>
+          <span class="s">"get_files"</span><span class="p">:</span> <span class="bp">False</span><span class="p">}</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="s">"https://api.skydipper.com/v1/composite-service"</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+
+</code></pre>
+<blockquote>
+<p>Response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="s2">"dem"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://earthengine.googleapis.com/api/thumb?thumbid=6162ac5f8444eed070b537732711b688&amp;token=XXXX"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"thumb_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://earthengine.googleapis.com/api/thumb?thumbid=580652e722a7660ab7137ffb21ce664e&amp;token=XXXXX"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"tile_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://earthengine.googleapis.com/map/1eaa150375fa8c9b1e00aa78f754f9d1/{z}/{x}/{y}?token=XXXXX"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"zonal_stats"</span><span class="p">:</span><span class="w"> </span><span class="s2">"None"</span><span class="p">},</span><span class="w">
+  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"None"</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"composite_service"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<h2 id="downloading-image-assets">Downloading Image Assets</h2>
+
+<p>Sometimes you want more than a thumnail and web map tiles. If you want to build 3D models with these assets you will
+need to download the composite as a surface texture and apply that texture to a surface (ideally using the DEM
+to deform the surface to show height also). To do this you will need to hit the service with <code class="prettyprint">get_files</code>=<em>True</em>, and then
+unzip the assets folder that is returned in the response.</p>
+<pre class="highlight python"><code><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s">"geostore"</span><span class="p">:</span> <span class="s">"&lt;geostore_id&gt;"</span><span class="p">,</span>
+          <span class="s">"get_dem"</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+          <span class="s">"date_range"</span><span class="p">:</span> <span class="s">"[2019-01-01, 2019-12-01]"</span><span class="p">,</span>
+          <span class="s">"thumb_size"</span><span class="p">:</span> <span class="s">"[250, 250]"</span><span class="p">,</span>
+          <span class="s">"instrument"</span><span class="p">:</span> <span class="s">"landsat"</span><span class="p">,</span>
+          <span class="s">"get_files"</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="s">"https://api.skydipper.com/v1/composite-service"</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+</code></pre>
+<aside class="notice">
+The resolution of the downloaded images can be controled via the thumb_size parameter. E.g. if a 500x500 pixel image is required, pass the argument
+thumb_size=[500,500].
+</aside>
+
           <h1 id="dataset">Dataset</h1>
 
 <h2 id="what-is-a-dataset">What is a Dataset?</h2>
@@ -732,6 +835,51 @@ Deleting a dataset removes it permanently! It is recommended that you save a loc
     This is an authenticated endpoint!
 </aside>
 
+          <h1 id="fields">Fields</h1>
+
+<h2 id="what-are-fields">What are fields?</h2>
+
+<p>Fields can be defined as the dataset properties. These fields are automatically generated when a dataset is created.</p>
+
+<h2 id="how-to-get-the-dataset-fields">How to get the dataset fields</h2>
+
+<p>Once the dataset is properly created and saved, it is possible to access to its fields as well as getting some information about them.</p>
+
+<p>To do that, it is necessary to use of the following endpoint:</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/fields/&lt;dataset-id&gt;
+</code></pre>
+<blockquote>
+<p>Real example</p>
+</blockquote>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/fields/1170030b-9725-4bfe-8fb4-1b0eb81020d2
+</code></pre>
+<blockquote>
+<p>Response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"tableName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"public.cait_2_0_country_ghg_emissions_toplow2011"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"cartodb_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"number"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"the_geom"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"geometry"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"the_geom_webmercator"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"geometry"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"x"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"y"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"number"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"z"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
           <h1 id="layer">Layer</h1>
 
 <h2 id="what-is-a-layer">What is a Layer?</h2>
@@ -1682,174 +1830,121 @@ type: [dataset]
   </span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-          <h1 id="query">Query</h1>
+          <h1 id="microservices">Microservices</h1>
 
-<p>In order to retrieve data from the datasets it is possible to send queries to the API using the SQL or Feature Service languages.</p>
-
-<p>Two different endpoints are provided (under the dataset path and a generic one) and the sql query can be provided via query parameters or in the body of a POST request.</p>
-<pre class="highlight shell"><code>curl -i -H <span class="s1">'Authorization: Bearer your-token&gt;'</span> -H <span class="s1">'Content-Type: application/json'</span> -XPOST <span class="s1">'http://api.skydipper.com/v1/query/&lt;dataset_id&gt;/'</span> -d <span class="s1">'{
-    "sql": "SELECT * FROM &lt;dataset_id&gt; limit 10"
-}
-'</span>
-</code></pre><pre class="highlight shell"><code>curl -i -XGET http<span class="se">\:</span>//api.skydipper.com/v1/query<span class="se">\?</span>sql<span class="se">\=</span>SELECT<span class="se">\ \*\ </span>from<span class="se">\ </span>&lt;dataset.slug&gt;
-</code></pre>
-<aside class="notice">
-While we aim to make our query interface as broad and transparent as possible, some of the querying options described 
-below will not be available for specific dataset providers, depending on this API&rsquo;s implementation or limitations on the
-actual data provider&rsquo;s side.
-</aside>
-
-<h2 id="select-clause">Select clause</h2>
-
-<p>The <code class="prettyprint">SELECT</code> part of the queries supports naming columns, <strong>alias</strong>, <strong>math operations</strong>, <strong>DISTINCT</strong>, <strong>COUNT</strong>, <strong>SQL functions</strong> and <strong>PostGIS functions</strong></p>
-<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-
-<span class="k">SELECT</span> <span class="k">sum</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="k">avg</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="k">max</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="k">min</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="k">min</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">as</span> <span class="n">minimum</span> <span class="k">FROM</span> <span class="k">table</span>
-
-<span class="k">SELECT</span> <span class="n">ST_valueCount</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-</code></pre>
-<h2 id="from-clause">From clause</h2>
-
-<p>It is possible to refer to a dataset by using its <strong>table name</strong>, <strong>slug</strong> or <strong>id</strong>. </p>
-<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="p">.</span><span class="n">tableName</span><span class="o">&gt;</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="p">.</span><span class="n">slug</span><span class="o">&gt;</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="p">.</span><span class="n">id</span><span class="o">&gt;</span>
-</code></pre>
-<h2 id="where-clause">Where clause</h2>
-<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="mi">2</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">&lt;</span> <span class="mi">2</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">&gt;=</span> <span class="mi">2</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">and</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="mi">2</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">text</span> <span class="k">like</span> <span class="s1">'a%'</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">st_intersects</span><span class="p">(</span><span class="n">st_setsrid</span><span class="p">(</span><span class="n">st_geomfromgeojson</span><span class="p">(</span><span class="s1">'{}'</span><span class="p">),</span> <span class="mi">4326</span><span class="p">),</span> <span class="n">the_geom</span><span class="p">)</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="k">data</span> <span class="k">BETWEEN</span> <span class="mi">1</span> <span class="k">AND</span> <span class="mi">3</span>
-</code></pre>
-<h2 id="group-by-clause">Group by clause</h2>
-
-<p>It is possible to group results by <strong>column name</strong>, <strong>SQL functions</strong> and <strong>PostGIS functions</strong>.
-Special grouping operations are available for document-type datasets (CSV and JSON) - see <a href="https://github.com/NLPchina/elasticsearch-sql/tree/5.5.2.0#beyond-sql">this link</a> for more info.</p>
-<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">columnOne</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">columnOne</span><span class="p">,</span> <span class="n">columnTwo</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">ST_GeoHash</span><span class="p">(</span><span class="n">the_geom_point</span><span class="p">,</span><span class="mi">8</span><span class="p">)</span>
-
-<span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">a</span>
-<span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">ST_GeoHash</span><span class="p">(</span><span class="n">the_geom</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-</code></pre><pre class="highlight sql"><code><span class="cm">/* Only supported in document-type datasets - see https://github.com/NLPchina/elasticsearch-sql/tree/5.5.2.0#beyond-sql for full details */</span>
-<span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="n">age</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">range</span><span class="p">(</span><span class="n">age</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">35</span><span class="p">,</span><span class="mi">40</span><span class="p">)</span> 
-<span class="k">SELECT</span> <span class="n">online</span> <span class="k">FROM</span> <span class="n">online</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">date_histogram</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">'insert_time'</span><span class="p">,</span><span class="s1">'interval'</span><span class="o">=</span><span class="s1">'1d'</span><span class="p">)</span>
-<span class="k">SELECT</span> <span class="n">online</span> <span class="k">FROM</span> <span class="n">online</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">date_range</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">'insert_time'</span><span class="p">,</span><span class="s1">'format'</span><span class="o">=</span><span class="s1">'yyyy-MM-dd'</span> <span class="p">,</span><span class="s1">'2014-08-18'</span><span class="p">,</span><span class="s1">'2014-08-17'</span><span class="p">,</span><span class="s1">'now-8d'</span><span class="p">,</span><span class="s1">'now-7d'</span><span class="p">,</span><span class="s1">'now-6d'</span><span class="p">,</span><span class="s1">'now'</span><span class="p">)</span>
-</code></pre>
-<h2 id="order-by-clause">Order by clause</h2>
-
-<p>It is possible to order results by <strong>column name</strong>, <strong>SQL functions</strong> and <strong>PostGIS functions</strong></p>
-
-<h2 id="limit-and-offset-clause">Limit and offset clause</h2>
-
-<p>You can specify <code class="prettyprint">limit</code> and <code class="prettyprint">offset</code> clauses</p>
-<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">limit</span><span class="o">=</span><span class="mi">20</span>
-<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">limit</span><span class="o">=</span><span class="mi">20</span> <span class="k">offset</span> <span class="mi">10</span>
-</code></pre>
-<h2 id="raster-queries-available">Raster queries available</h2>
-<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="n">ST_METADATA</span><span class="p">(</span><span class="n">rast</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="n">ST_BANDMETADATA</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="n">occurrence</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="n">ST_SUMMARYSTATS</span><span class="p">()</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="n">ST_HISTOGRAM</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">auto</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-<span class="k">SELECT</span> <span class="n">ST_valueCount</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
-</code></pre>
-<h2 id="freeze-query">Freeze query</h2>
-
-<p>It is possible generate a json file in a bucket of the sql result. You only need send a query param freeze with value true and you will obtain the url of the json file.</p>
+<p>A list of information related to the microservices</p>
 
 <aside class="notice">
-    This is an authenticated feature!
+    These services are only available to ADMIN users.
 </aside>
-<pre class="highlight shell"><code>curl -i -XGET http<span class="se">\:</span>//api.skydipper.com/v1/query<span class="se">\?</span>sql<span class="se">\=</span>SELECT<span class="se">\ \*\ </span>from<span class="se">\ </span>&lt;dataset.slug&gt;&amp;freeze<span class="o">=</span><span class="nb">true</span>
-</code></pre>
-<h2 id="download">Download</h2>
 
-<p>You can download the result of a query using the <code class="prettyprint">download</code> endpoint. </p>
+<h2 id="list-all-registered-microservices">List all registered microservices</h2>
 
-<aside class="warning">
-    <ul>
-    This endpoint is not neccesarily supported for all dataset providers. The following dataset connector provide support for downloads:
-        <li>Google Earth Engine</li>
-        <li>Carto</li>
-        <li>ArcGIS FeatureService</li>
-    </ul>
-</aside>
-<pre class="highlight shell"><code><span class="c"># The id of the dataset is part of the URL</span>
-curl -XGET https://api.skydipper.com/v1/download/&lt;dataset.id&gt;?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.tableName&gt;
-
-<span class="c"># The id of the dataset is in the FROM clause</span>
-curl -XGET https://api.skydipper.com/v1/download?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.id&gt;
-</code></pre>
-<p>There are two ways to call it:</p>
-
-<ul>
-<li>you can either specify the id of the dataset in the URL</li>
-<li>or you can pass it as part of the SQL query (in the FROM clause)</li>
-</ul>
-
-<p>You can also specify which file type you want to download (JSON or CSV), except for Google Earth Engine datasets (only JSON).</p>
-
-<aside class="notice">
-    By default, the API will return a CSV file (JSON file for Google Earth Engine).
-</aside>
-<pre class="highlight shell"><code><span class="c"># The format is explicitly set</span>
-curl -XGET https://api.skydipper.com/v1/download/&lt;dataset.id&gt;?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.tableName&gt;&amp;format<span class="o">=</span>json
-curl -XGET https://api.skydipper.com/v1/download/&lt;dataset.id&gt;?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.tableName&gt;&amp;format<span class="o">=</span>csv
-</code></pre>
-          <h1 id="fields">Fields</h1>
-
-<h2 id="what-are-fields">What are fields?</h2>
-
-<p>Fields can be defined as the dataset properties. These fields are automatically generated when a dataset is created.</p>
-
-<h2 id="how-to-get-the-dataset-fields">How to get the dataset fields</h2>
-
-<p>Once the dataset is properly created and saved, it is possible to access to its fields as well as getting some information about them.</p>
-
-<p>To do that, it is necessary to use of the following endpoint:</p>
-<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/fields/&lt;dataset-id&gt;
+<p>To obtain a list of all the registered microservices:</p>
+<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/api/v1/microservice <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
 </code></pre>
 <blockquote>
-<p>Real example</p>
+<p>Example response:</p>
 </blockquote>
-<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/fields/1170030b-9725-4bfe-8fb4-1b0eb81020d2
+<pre class="highlight json"><code><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"infoStatus"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"numRetries"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"error"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"lastCheck"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-02-04T14:05:30.748Z"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="s2">"pathInfo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/info"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"pathLive"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/ping"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"cache"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+        </span><span class="s2">"uncache"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"dataset"</span><span class="p">],</span><span class="w">
+        </span><span class="s2">"tags"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"dataset"</span><span class="w">
+
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"id"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Dataset"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://dataset.default.svc.cluster.local:3000"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"version"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"redirect"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/v1/dataset"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/dataset"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="s2">"redirect"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/v1/dataset/find-by-ids"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/dataset/find-by-ids"</span><span class="p">,</span><span class="w">
+                </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="err">...</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-01-24T13:04:46.728Z"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"swagger"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{}"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="err">...</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<h2 id="delete-microservice">Delete microservice</h2>
+
+<p>To remove a microservice:</p>
+<pre class="highlight shell"><code>curl -X DELETE https://api.skydipper.com/api/v1/microservice/:id <span class="se">\</span>
+-H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
 </code></pre>
-<blockquote>
-<p>Response</p>
-</blockquote>
+<h4 id="notes">Notes</h4>
+
+<p>Keep in mind that this does not actually delete the microservice, instead it schedules it for being removed. 
+There&rsquo;s a cron task that does the actual deleting, so the process is async.</p>
+
+          <h1 id="geoai">GeoAI</h1>
+
+<p>Service for statistical analysis tools.</p>
+
+<h2 id="trends">Trends</h2>
+
+<p>Examine long-term changes in a 1-D dataset, using moving average (box-car) de-treding (i.e. low-pass filter) and
+a Monte Carlo resampling to calculate the significance of the low-frequency variance.</p>
+<pre class="highlight python"><code><span class="n">url</span> <span class="o">=</span> <span class="s">"https://api.skydipper.com/v1/geoai/trends"</span>
+
+<span class="n">querystring</span> <span class="o">=</span> <span class="p">{</span><span class="s">"mc_number"</span><span class="p">:</span><span class="s">"10000"</span><span class="p">,</span>
+               <span class="s">"bin_number"</span><span class="p">:</span><span class="s">"100"</span><span class="p">,</span>
+               <span class="s">"window"</span><span class="p">:</span><span class="s">"5"</span><span class="p">}</span>
+
+<span class="n">payload</span> <span class="o">=</span> <span class="s">"{</span><span class="se">\"</span><span class="s">timeseries</span><span class="se">\"</span><span class="s">: {</span><span class="se">\"</span><span class="s">2001</span><span class="se">\"</span><span class="s">: 8523609.893269539, </span><span class="se">\"</span><span class="s">2002</span><span class="se">\"</span><span class="s">: 9219075.336818695, </span><span class="se">\"</span><span class="s">2003</span><span class="se">\"</span><span class="s">: 5745394.048210621, </span><span class="se">\"</span><span class="s">2004</span><span class="se">\"</span><span class="s">: 16352804.901271343, </span><span class="se">\"</span><span class="s">2005</span><span class="se">\"</span><span class="s">: 11950375.210030556, </span><span class="se">\"</span><span class="s">2006</span><span class="se">\"</span><span class="s">: 18535092.244664192, </span><span class="se">\"</span><span class="s">2007</span><span class="se">\"</span><span class="s">: 15964553.06836462, </span><span class="se">\"</span><span class="s">2008</span><span class="se">\"</span><span class="s">: 12015146.018202782, </span><span class="se">\"</span><span class="s">2009</span><span class="se">\"</span><span class="s">: 17515508.700252533, </span><span class="se">\"</span><span class="s">2010</span><span class="se">\"</span><span class="s">: 14973976.22736454, </span><span class="se">\"</span><span class="s">2011</span><span class="se">\"</span><span class="s">: 10555302.132576942, </span><span class="se">\"</span><span class="s">2012</span><span class="se">\"</span><span class="s">: 19785808.554305553, </span><span class="se">\"</span><span class="s">2013</span><span class="se">\"</span><span class="s">: 15784503.92861414, </span><span class="se">\"</span><span class="s">2014</span><span class="se">\"</span><span class="s">: 18598649.662708282, </span><span class="se">\"</span><span class="s">2015</span><span class="se">\"</span><span class="s">: 16366608.645088673, </span><span class="se">\"</span><span class="s">2016</span><span class="se">\"</span><span class="s">: 26919829.052940845, </span><span class="se">\"</span><span class="s">2017</span><span class="se">\"</span><span class="s">: 24389565.014420033, </span><span class="se">\"</span><span class="s">2018</span><span class="se">\"</span><span class="s">: 31650039.900456905}}"</span>
+<span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'Content-Type'</span><span class="p">:</span> <span class="s">"application/json"</span><span class="p">,</span>
+    <span class="s">'cache-control'</span><span class="p">:</span> <span class="s">"no-cache"</span>
+    <span class="p">}</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">querystring</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</code></pre>
+<p>Example response:</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="s2">"tableName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"public.cait_2_0_country_ghg_emissions_toplow2011"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"cartodb_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"number"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"the_geom"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"geometry"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"the_geom_webmercator"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"geometry"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"x"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"y"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"number"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"z"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
-        </span><span class="p">}</span><span class="w">
-    </span><span class="p">}</span><span class="w">
+  </span><span class="s2">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"attributes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"anomaly"</span><span class="p">:</span><span class="w"> </span><span class="mf">13226686.577202797</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"anomaly_uncertainty"</span><span class="p">:</span><span class="w"> </span><span class="mf">6605963.307585477</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"bin_number"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Increase of 1.3e+07 over observation period has an associated p-value of 0.001</span><span class="se">\u</span><span class="s2">00b1 1.000 0.948."</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"lower_p"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.9480426688037374</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"mc_number"</span><span class="p">:</span><span class="w"> </span><span class="mi">10000</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"p"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.9994235963381208</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"upper_p"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.9999994544351509</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"window"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mc_timeseries_analysis"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
           <h1 id="geostore">Geostore</h1>
@@ -2380,366 +2475,428 @@ To import the geojson in geostore, you need to define all of the required fields
 </span></code></pre>
           <h1 id="geodescriber">Geodescriber</h1>
 
-<h2 id="what-is-geodescriber">What is Geodescriber?</h2>
+<p>Geodescriber returns a text description of any Geostore or valid geojson area, in any langunage, dynamically.
+Responses from Geodescriber have been tailored to different purposes. The (optional) argument <code class="prettyprint">app</code> controls which flavour
+description you will return.</p>
 
-<p>Geodesriber is blah.</p>
+<p>The code for Geodescriber is <a href="https://github.com/Skydipper/Geodescriber">hosted on Github</a>.</p>
 
-<aside class="notice">
-Remember — All endpoint of geostore don&rsquo;t need that you are authenticated.
-</aside>
+<h2 id="call-geodescriber-with-a-geostore-id">Call Geodescriber with a Geostore ID</h2>
 
-<h2 id="call-geodescriber">Call Geodescriber</h2>
-
-<p>You can use it in</p>
-
-<blockquote>
-<p>To create a Geostore, you have to do a POST query with the following body:</p>
-</blockquote>
-<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/geodescriber <span class="se">\</span>
--H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
- <span class="s1">'{
-   "geojson": &lt;yourGeoJSONObject&gt;
-  }'</span>
+<p>You can return a response from the Geodescriber by providing a <code class="prettyprint">geostore</code> paramter in your <em>GET</em> request.
+You can change the language of the response via the <code class="prettyprint">lang</code> flag, using the <a href="https://www.sitepoint.com/iso-2-letter-language-codes/">ISO-2 codes</a>.</p>
+<pre class="highlight shell"><code>curl --location --request GET <span class="s1">'https://api.skydipper.com/api/v1/geodescriber?geostore=&lt;ID_HASH&gt;&amp;template=False&amp;app=skydipper&amp;lang=en'</span>
 </code></pre>
 <blockquote>
-<p>Real example</p>
-</blockquote>
-<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/geostore <span class="se">\</span>
--H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
- <span class="s1">'{
-   "geojson":{
-      "type":"FeatureCollection",
-      "features":[
-         {
-            "type":"Feature",
-            "properties":{
-
-            },
-            "geometry":{
-               "type":"LineString",
-               "coordinates":[
-                  [
-                     -3.9942169189453125,
-                     41.044922165782175
-                  ],
-                  [
-                     -3.995418548583985,
-                     41.03767166215326
-                  ],
-                  [
-                     -3.9842605590820312,
-                     41.03844854003296
-                  ],
-                  [
-                     -3.9844322204589844,
-                     41.04589315472392
-                  ],
-                  [
-                     -3.9942169189453125,
-                     41.044922165782175
-                  ]
-               ]
-            }
-         },
-         {
-            "type":"Feature",
-            "properties":{
-
-            },
-            "geometry":{
-               "type":"Polygon",
-               "coordinates":[
-                  [
-                     [
-                        -4.4549560546875,
-                        40.84706035607122
-                     ],
-                     [
-                        -4.4549560546875,
-                        41.30257109430557
-                     ],
-                     [
-                        -3.5211181640624996,
-                        41.30257109430557
-                     ],
-                     [
-                        -3.5211181640624996,
-                        40.84706035607122
-                     ],
-                     [
-                        -4.4549560546875,
-                        40.84706035607122
-                     ]
-                  ]
-               ]
-            }
-         }
-      ]
-   }
-}'</span>
-</code></pre>
-<p>The response will be 200 if the geostore saves correctly and returns the geostore object with all information:</p>
-
-<blockquote>
-<p>Example response</p>
+<p>Example Response</p>
 </blockquote>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
    </span><span class="s2">"data"</span><span class="p">:{</span><span class="w">
-      </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"geoStore"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"c9bacccfb9c3fe225dc67545bb93a5cb"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"attributes"</span><span class="p">:{</span><span class="w">
-         </span><span class="s2">"geojson"</span><span class="p">:{</span><span class="w">
-            </span><span class="s2">"features"</span><span class="p">:[</span><span class="w">
-               </span><span class="p">{</span><span class="w">
-                  </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"Feature"</span><span class="p">,</span><span class="w">
-                  </span><span class="s2">"geometry"</span><span class="p">:{</span><span class="w">
-                     </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"Polygon"</span><span class="p">,</span><span class="w">
-                     </span><span class="s2">"coordinates"</span><span class="p">:[</span><span class="w">
-                        </span><span class="p">[</span><span class="w">
-                           </span><span class="p">[</span><span class="w">
-                              </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
-                              </span><span class="mf">40.84706035607122</span><span class="w">
-                           </span><span class="p">],</span><span class="w">
-                           </span><span class="p">[</span><span class="w">
-                              </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
-                              </span><span class="mf">41.30257109430557</span><span class="w">
-                           </span><span class="p">],</span><span class="w">
-                           </span><span class="p">[</span><span class="w">
-                              </span><span class="mf">-3.5211181640624996</span><span class="p">,</span><span class="w">
-                              </span><span class="mf">41.30257109430557</span><span class="w">
-                           </span><span class="p">],</span><span class="w">
-                           </span><span class="p">[</span><span class="w">
-                              </span><span class="mf">-3.5211181640624996</span><span class="p">,</span><span class="w">
-                              </span><span class="mf">40.84706035607122</span><span class="w">
-                           </span><span class="p">],</span><span class="w">
-                           </span><span class="p">[</span><span class="w">
-                              </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
-                              </span><span class="mf">40.84706035607122</span><span class="w">
-                           </span><span class="p">]</span><span class="w">
-                        </span><span class="p">]</span><span class="w">
-                     </span><span class="p">]</span><span class="w">
-                  </span><span class="p">}</span><span class="w">
-               </span><span class="p">}</span><span class="w">
-            </span><span class="p">],</span><span class="w">
-            </span><span class="s2">"crs"</span><span class="p">:{</span><span class="w">
-
-            </span><span class="p">},</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"FeatureCollection"</span><span class="w">
-         </span><span class="p">},</span><span class="w">
-         </span><span class="s2">"hash"</span><span class="p">:</span><span class="s2">"c9bacccfb9c3fe225dc67545bb93a5cb"</span><span class="p">,</span><span class="w">
-         </span><span class="s2">"provider"</span><span class="p">:{</span><span class="w">
-
-         </span><span class="p">},</span><span class="w">
-         </span><span class="s2">"areaHa"</span><span class="p">:</span><span class="mf">397372.34122605197</span><span class="p">,</span><span class="w">
-         </span><span class="s2">"bbox"</span><span class="p">:[</span><span class="w">
-            </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
-            </span><span class="mf">40.84706035607122</span><span class="p">,</span><span class="w">
-            </span><span class="mf">-3.5211181640624996</span><span class="p">,</span><span class="w">
-            </span><span class="mf">41.30257109430557</span><span class="w">
-         </span><span class="p">]</span><span class="w">
+      </span><span class="s2">"description"</span><span class="p">:</span><span class="s2">"The region's habitat is comprised of Cantabrian mixed forests. This region has no Intact Forest. The area has a predominantly warm and temperate climate with dry summers. It is part of the Temperate Broadleaf and Mixed Forests biome. The location is mostly land area with a large proportion of marine area. Area of 12,387km² located in a predominanty lowland area."</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"description_params"</span><span class="p">:{},</span><span class="w">
+      </span><span class="s2">"lang"</span><span class="p">:</span><span class="s2">"en"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"stats"</span><span class="p">:{</span><span class="w">
+         </span><span class="s2">"biome"</span><span class="p">:{</span><span class="s2">"4"</span><span class="p">:</span><span class="mf">1082227.4941176388</span><span class="p">},</span><span class="w">
+         </span><span class="s2">"ecoregion"</span><span class="p">:{</span><span class="s2">"648"</span><span class="p">:</span><span class="mf">1082227.4941176388</span><span class="p">},</span><span class="w">
+         </span><span class="s2">"intact2016"</span><span class="p">:{</span><span class="s2">"0"</span><span class="p">:</span><span class="mf">1666560.2431372453</span><span class="p">},</span><span class="w">
+         </span><span class="s2">"isMountain"</span><span class="p">:{</span><span class="s2">"0"</span><span class="p">:</span><span class="mf">1603363.7882352876</span><span class="p">,</span><span class="w">
+                       </span><span class="s2">"1"</span><span class="p">:</span><span class="mf">63196.454901960824</span><span class="p">},</span><span class="w">
+         </span><span class="s2">"koppen"</span><span class="p">:{</span><span class="s2">"32"</span><span class="p">:</span><span class="mf">222131.647058824</span><span class="p">,</span><span class="w">
+                   </span><span class="s2">"35"</span><span class="p">:</span><span class="mf">1222652.1764705782</span><span class="p">},</span><span class="w">
+         </span><span class="s2">"seaLandFreshwater"</span><span class="p">:{</span><span class="s2">"0"</span><span class="p">:</span><span class="mf">1094287.9294117563</span><span class="p">,</span><span class="w">
+                              </span><span class="s2">"1"</span><span class="p">:</span><span class="mf">572272.3137254902</span><span class="p">}</span><span class="w">
+               </span><span class="p">},</span><span class="w">
+      </span><span class="s2">"title"</span><span class="p">:</span><span class="s2">"Area in Galicia, Spain"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"title_params"</span><span class="p">:{}</span><span class="w">
       </span><span class="p">}</span><span class="w">
-   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-          <h1 id="basemaps">Basemaps</h1>
+<h2 id="geodescriber-from-valid-geojson">Geodescriber from valid GeoJSON</h2>
 
-<p>Basemap service details.</p>
-<pre class="highlight shell"><code>curl -i -H <span class="s1">'Authorization: Bearer your-token&gt;'</span> -H <span class="s1">'Content-Type: application/json'</span> -XPOST <span class="s1">'http://api.skydipper.com/v1/basemaps/&lt;year&gt;/&lt;x&gt;/&lt;y&gt;/&lt;z&gt;/'</span> -d <span class="s1">'{
+<p>If the geometry does not correspond to a Geostore object, and you do not wish to create one, you can post a valid
+geojson directly to the Geodescriber service and return a response.</p>
+<pre class="highlight shell"><code>curl --location --request POST <span class="s1">'https://api.skydipper.com/v1/geodescriber/geom?lang=en&amp;app=skydipper'</span> <span class="se">\</span>
+--header <span class="s1">'Content-Type: application/json'</span> <span class="se">\</span>
+--data-raw <span class="s1">'{"geojson":{"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-8.749999866114031,43.86562279054269],[-8.500000104532665,43.86562279054269],[-8.2500003429513,43.86562279054269],[-8.000000581369934,43.86562279054269],[-8.000000581369934,42.49423975448128],[-8.2500003429513,42.49423975448128],[-8.500000104532665,42.49423975448128],[-8.749999866114031,42.49423975448128],[-8.999999627695365,42.49423975448128],[-8.999999627695365,43.86562279054269],[-8.749999866114031,43.86562279054269]]]}}]}}'</span>
+
+</code></pre>
+<blockquote>
+<p>Example Response</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+   </span><span class="s2">"data"</span><span class="p">:{</span><span class="w">
+      </span><span class="s2">"description"</span><span class="p">:</span><span class="s2">"The region's habitat is comprised of Cantabrian mixed forests. This region has no Intact Forest. The area has a predominantly warm and temperate climate with dry summers. It is part of the Temperate Broadleaf and Mixed Forests biome. The location is mostly land area with a large proportion of marine area. Area of 12,387km² located in a predominanty lowland area."</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"description_params"</span><span class="p">:{},</span><span class="w">
+      </span><span class="s2">"lang"</span><span class="p">:</span><span class="s2">"en"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"stats"</span><span class="p">:{</span><span class="w">
+         </span><span class="s2">"biome"</span><span class="p">:{</span><span class="s2">"4"</span><span class="p">:</span><span class="mf">1082227.4941176388</span><span class="p">},</span><span class="w">
+         </span><span class="s2">"ecoregion"</span><span class="p">:{</span><span class="s2">"648"</span><span class="p">:</span><span class="mf">1082227.4941176388</span><span class="p">},</span><span class="w">
+         </span><span class="s2">"intact2016"</span><span class="p">:{</span><span class="s2">"0"</span><span class="p">:</span><span class="mf">1666560.2431372453</span><span class="p">},</span><span class="w">
+         </span><span class="s2">"isMountain"</span><span class="p">:{</span><span class="s2">"0"</span><span class="p">:</span><span class="mf">1603363.7882352876</span><span class="p">,</span><span class="w">
+                       </span><span class="s2">"1"</span><span class="p">:</span><span class="mf">63196.454901960824</span><span class="p">},</span><span class="w">
+         </span><span class="s2">"koppen"</span><span class="p">:{</span><span class="s2">"32"</span><span class="p">:</span><span class="mf">222131.647058824</span><span class="p">,</span><span class="w">
+                   </span><span class="s2">"35"</span><span class="p">:</span><span class="mf">1222652.1764705782</span><span class="p">},</span><span class="w">
+         </span><span class="s2">"seaLandFreshwater"</span><span class="p">:{</span><span class="s2">"0"</span><span class="p">:</span><span class="mf">1094287.9294117563</span><span class="p">,</span><span class="w">
+                              </span><span class="s2">"1"</span><span class="p">:</span><span class="mf">572272.3137254902</span><span class="p">}</span><span class="w">
+               </span><span class="p">},</span><span class="w">
+      </span><span class="s2">"title"</span><span class="p">:</span><span class="s2">"Area in Galicia, Spain"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"title_params"</span><span class="p">:{}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+          <h1 id="geodoctor">GeoDoctor</h1>
+
+<h2 id="what-is-the-geodoctor-service">What is the GeoDoctor service?</h2>
+
+<p>GeoDoctor is a service to receive geospatial datafiles of various kinds, extract shapes, repair and simplify those shapes.
+The service responds with a valid geojson object that can be consumed by other Skydipper services such as Geostore.</p>
+
+<p>File conversion is done with GDAL OGR2OGR), and
+optional cleaning and simplification is done using the <a href="https://github.com/mbloch/mapshaper/wiki/Command-Reference">visvalingam method</a>,
+preserving features with Mapshaper.</p>
+
+<h3 id="an-example-with-geosjon">An example with GEOSJON</h3>
+
+<p>Given an input file which contains:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="err">'type'</span><span class="p">:</span><span class="w"> </span><span class="err">'FeatureCollection'</span><span class="p">,</span><span class="w">
+ </span><span class="err">'features'</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="err">'type'</span><span class="p">:</span><span class="w"> </span><span class="err">'Feature'</span><span class="p">,</span><span class="w">
+   </span><span class="err">'properties'</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+   </span><span class="err">'geometry'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'type'</span><span class="p">:</span><span class="w"> </span><span class="err">'Polygon'</span><span class="p">,</span><span class="w">
+    </span><span class="err">'coordinates'</span><span class="p">:</span><span class="w"> </span><span class="p">[[[</span><span class="mf">-8.690185546875</span><span class="p">,</span><span class="w"> </span><span class="mf">32.8334428466495</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-9.140625</span><span class="p">,</span><span class="w"> </span><span class="mf">32.648625783736726</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-9.052734375</span><span class="p">,</span><span class="w"> </span><span class="mf">32.44488496716713</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.865966796875</span><span class="p">,</span><span class="w"> </span><span class="mf">32.27784451498272</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.8330078125</span><span class="p">,</span><span class="w"> </span><span class="mf">32.16631295696736</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.865966796875</span><span class="p">,</span><span class="w"> </span><span class="mf">32.008075959291055</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.98681640625</span><span class="p">,</span><span class="w"> </span><span class="mf">31.970803930433096</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-9.33837890625</span><span class="p">,</span><span class="w"> </span><span class="mf">31.93351676190369</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-9.64599609375</span><span class="p">,</span><span class="w"> </span><span class="mf">31.672083485607402</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-9.755859375</span><span class="p">,</span><span class="w"> </span><span class="mf">31.23159167205059</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-9.481201171875</span><span class="p">,</span><span class="w"> </span><span class="mf">31.005862904624205</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-9.041748046875</span><span class="p">,</span><span class="w"> </span><span class="mf">30.552800413453546</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-9.0966796875</span><span class="p">,</span><span class="w"> </span><span class="mf">30.173624550358536</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-9.239501953125</span><span class="p">,</span><span class="w"> </span><span class="mf">30.002516938570686</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.3056640625</span><span class="p">,</span><span class="w"> </span><span class="mf">29.707139348134145</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-7.965087890625</span><span class="p">,</span><span class="w"> </span><span class="mf">29.964452850852005</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-7.921142578125</span><span class="p">,</span><span class="w"> </span><span class="mf">30.259067203213018</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.052978515625</span><span class="p">,</span><span class="w"> </span><span class="mf">30.4297295750316</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.3056640625</span><span class="p">,</span><span class="w"> </span><span class="mf">30.524413269923986</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.4375</span><span class="p">,</span><span class="w"> </span><span class="mf">30.609549797190844</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.3056640625</span><span class="p">,</span><span class="w"> </span><span class="mf">30.798474179567823</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.140869140625</span><span class="p">,</span><span class="w"> </span><span class="mf">30.713503990354965</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.074951171875</span><span class="p">,</span><span class="w"> </span><span class="mf">30.675715404167743</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-7.987060546875</span><span class="p">,</span><span class="w"> </span><span class="mf">30.62845887475364</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-7.91015625</span><span class="p">,</span><span class="w"> </span><span class="mf">30.5717205651999</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-7.822265625000001</span><span class="p">,</span><span class="w"> </span><span class="mf">30.543338954230222</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-7.701416015625001</span><span class="p">,</span><span class="w"> </span><span class="mf">30.543338954230222</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-7.679443359375</span><span class="p">,</span><span class="w"> </span><span class="mf">30.6662659463233</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-7.811279296874999</span><span class="p">,</span><span class="w"> </span><span class="mf">30.80791068136646</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-7.965087890625</span><span class="p">,</span><span class="w"> </span><span class="mf">30.883369321692268</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.052978515625</span><span class="p">,</span><span class="w"> </span><span class="mf">30.92107637538488</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.19580078125</span><span class="p">,</span><span class="w"> </span><span class="mf">30.95876857077987</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.28369140625</span><span class="p">,</span><span class="w"> </span><span class="mf">30.987027960280326</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.382568359375</span><span class="p">,</span><span class="w"> </span><span class="mf">31.071755902820133</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.349609375</span><span class="p">,</span><span class="w"> </span><span class="mf">31.22219703210317</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.06396484375</span><span class="p">,</span><span class="w"> </span><span class="mf">31.287939892641734</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-7.833251953125</span><span class="p">,</span><span class="w"> </span><span class="mf">31.297327991404266</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-6.723632812499999</span><span class="p">,</span><span class="w"> </span><span class="mf">32.26855544621476</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-7.822265625000001</span><span class="p">,</span><span class="w"> </span><span class="mf">32.537551746769</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.10791015625</span><span class="p">,</span><span class="w"> </span><span class="mf">31.970803930433096</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.646240234375</span><span class="p">,</span><span class="w"> </span><span class="mf">31.96148355726853</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.37158203125</span><span class="p">,</span><span class="w"> </span><span class="mf">32.194208672875384</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.118896484375</span><span class="p">,</span><span class="w"> </span><span class="mf">32.676372772089834</span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="mf">-8.690185546875</span><span class="p">,</span><span class="w"> </span><span class="mf">32.8334428466495</span><span class="p">]]]}}]}</span><span class="w">
+</span></code></pre>
+<p>From this file you can call the GeoDoctor service like this:</p>
+<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s">"http://api.skydipper.com/v1/geodoctor/convert"</span>
+<span class="n">querystring</span> <span class="o">=</span> <span class="p">{</span><span class="s">"simplify"</span><span class="p">:</span><span class="s">"10"</span><span class="p">,</span> <span class="s">"clean"</span><span class="p">:</span><span class="s">"true"</span><span class="p">}</span>
+<span class="n">files</span> <span class="o">=</span> <span class="p">{</span><span class="s">'file'</span><span class="p">:</span> <span class="nb">open</span><span class="p">(</span><span class="s">'&lt;path_to_your_file&gt;/&lt;your_file.geosjon&gt;'</span><span class="p">,</span> <span class="s">'rb'</span><span class="p">),</span> <span class="s">'Accept'</span><span class="p">:</span> <span class="s">"application/json, text/pain, */*"</span><span class="p">}</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">querystring</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+</code></pre>
+<p>Which will result in a response like:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="err">'data'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'type'</span><span class="p">:</span><span class="w"> </span><span class="err">'geoJSON'</span><span class="p">,</span><span class="w">
+  </span><span class="err">'id'</span><span class="p">:</span><span class="w"> </span><span class="err">'undefined'</span><span class="p">,</span><span class="w">
+  </span><span class="err">'attributes'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'type'</span><span class="p">:</span><span class="w"> </span><span class="err">'FeatureCollection'</span><span class="p">,</span><span class="w">
+   </span><span class="err">'features'</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="err">'type'</span><span class="p">:</span><span class="w"> </span><span class="err">'Feature'</span><span class="p">,</span><span class="w">
+     </span><span class="err">'properties'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'__id'</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w">
+     </span><span class="err">'geometry'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'type'</span><span class="p">:</span><span class="w"> </span><span class="err">'Polygon'</span><span class="p">,</span><span class="w">
+      </span><span class="err">'coordinates'</span><span class="p">:</span><span class="w"> </span><span class="p">[[[</span><span class="mf">-8.690185546875</span><span class="p">,</span><span class="w"> </span><span class="mf">32.8334428466495</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-6.723632812499999</span><span class="p">,</span><span class="w"> </span><span class="mf">32.26855544621476</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-7.833251953125</span><span class="p">,</span><span class="w"> </span><span class="mf">31.297327991404266</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-8.3056640625</span><span class="p">,</span><span class="w"> </span><span class="mf">29.707139348134145</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-9.755859375</span><span class="p">,</span><span class="w"> </span><span class="mf">31.23159167205059</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-8.690185546875</span><span class="p">,</span><span class="w"> </span><span class="mf">32.8334428466495</span><span class="p">]]]}}]}}}</span><span class="w">
+</span></code></pre>
+<p>Note the simplification of <code class="prettyprint">simplify: 10</code> means that the shape has been simplified by 90%.</p>
+
+<h3 id="example-with-well-known-text">Example with Well-Known-text</h3>
+
+<p>You can upload Well-Known-Text format also, e.g. given a sample file with the contents:</p>
+<pre class="highlight plaintext"><code>index, geom,
+1,"POLYGON ((-3.6694335937500004 40.896905775860006, -3.14208984375 40.58058466412761, -2.8125 40.81380923056958, -2.96630859375 41.16211393939692, -3.6035156249999996 41.44272637767212, -4.306640625 41.52502957323801, -5.053710937499999 41.47566020027821, -5.47119140625 41.32732632036622, -5.80078125 41.0130657870063, -5.91064453125 40.54720023441049, -5.888671875 40.06125658140474, -5.64697265625 39.690280594818034, -5.185546875 39.41922073655956, -4.32861328125 39.30029918615029, -3.427734375 39.30029918615029, -3.01025390625 39.554883059924016, -3.01025390625 39.87601941962116, -2.548828125 39.90973623453719, -2.57080078125 40.195659093364654, -3.97705078125 40.212440718286466, -3.97705078125 39.9434364619742, -3.5595703125 39.926588421909436, -3.5815429687499996 39.757879992021756, -4.50439453125 39.690280594818034, -5.053710937499999 39.8928799002948, -5.20751953125 40.07807142745009, -5.295410156249999 40.39676430557203, -5.3173828125 40.84706035607122, -4.89990234375 41.02964338716638, -4.4384765625 41.062786068733026, -3.80126953125 41.062786068733026, -3.6694335937500004 40.896905775860006))"
+</code></pre>
+<p>You can use that file as an input to the service like so:</p>
+<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s">"http://api.skydipper.com/v1/geodoctor/convert"</span>
+<span class="n">querystring</span> <span class="o">=</span> <span class="p">{</span><span class="s">"simplify"</span><span class="p">:</span><span class="s">"90"</span><span class="p">,</span> <span class="s">"clean"</span><span class="p">:</span><span class="s">"true"</span><span class="p">}</span>
+<span class="n">files</span> <span class="o">=</span> <span class="p">{</span><span class="s">'file'</span><span class="p">:</span> <span class="nb">open</span><span class="p">(</span><span class="s">'&lt;path_to_your_file&gt;/&lt;your_file.csv&gt;'</span><span class="p">,</span> <span class="s">'rb'</span><span class="p">),</span> <span class="s">'Accept'</span><span class="p">:</span> <span class="s">"application/json, text/pain, */*"</span><span class="p">}</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">files</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">querystring</span><span class="p">)</span>
+</code></pre>
+<p>Gives a response of:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="err">'geojson'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'type'</span><span class="p">:</span><span class="w"> </span><span class="err">'FeatureCollection'</span><span class="p">,</span><span class="w">
+  </span><span class="err">'features'</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="err">'type'</span><span class="p">:</span><span class="w"> </span><span class="err">'Feature'</span><span class="p">,</span><span class="w">
+    </span><span class="err">'properties'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'index'</span><span class="p">:</span><span class="w"> </span><span class="err">'</span><span class="mi">1</span><span class="err">'</span><span class="p">,</span><span class="w"> </span><span class="err">'field_</span><span class="mi">3</span><span class="err">'</span><span class="p">:</span><span class="w"> </span><span class="err">None</span><span class="p">,</span><span class="w"> </span><span class="err">'__id'</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w">
+    </span><span class="err">'geometry'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'type'</span><span class="p">:</span><span class="w"> </span><span class="err">'Polygon'</span><span class="p">,</span><span class="w">
+     </span><span class="err">'coordinates'</span><span class="p">:</span><span class="w"> </span><span class="p">[[[</span><span class="mf">-3.66943359375</span><span class="p">,</span><span class="w"> </span><span class="mf">40.896905775860006</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-3.80126953125</span><span class="p">,</span><span class="w"> </span><span class="mf">41.062786068733026</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-4.89990234375</span><span class="p">,</span><span class="w"> </span><span class="mf">41.02964338716638</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-5.3173828125</span><span class="p">,</span><span class="w"> </span><span class="mf">40.84706035607122</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-5.20751953125</span><span class="p">,</span><span class="w"> </span><span class="mf">40.07807142745009</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-5.053710937499999</span><span class="p">,</span><span class="w"> </span><span class="mf">39.8928799002948</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-4.50439453125</span><span class="p">,</span><span class="w"> </span><span class="mf">39.690280594818034</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-3.58154296875</span><span class="p">,</span><span class="w"> </span><span class="mf">39.757879992021756</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-3.5595703125</span><span class="p">,</span><span class="w"> </span><span class="mf">39.926588421909436</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-3.97705078125</span><span class="p">,</span><span class="w"> </span><span class="mf">39.9434364619742</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-3.97705078125</span><span class="p">,</span><span class="w"> </span><span class="mf">40.212440718286466</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-2.57080078125</span><span class="p">,</span><span class="w"> </span><span class="mf">40.195659093364654</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-2.548828125</span><span class="p">,</span><span class="w"> </span><span class="mf">39.90973623453719</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-3.01025390625</span><span class="p">,</span><span class="w"> </span><span class="mf">39.87601941962116</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-3.01025390625</span><span class="p">,</span><span class="w"> </span><span class="mf">39.554883059924016</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-3.427734375</span><span class="p">,</span><span class="w"> </span><span class="mf">39.30029918615029</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-4.32861328125</span><span class="p">,</span><span class="w"> </span><span class="mf">39.30029918615029</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-5.185546875</span><span class="p">,</span><span class="w"> </span><span class="mf">39.41922073655956</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-5.64697265625</span><span class="p">,</span><span class="w"> </span><span class="mf">39.690280594818034</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-5.888671875</span><span class="p">,</span><span class="w"> </span><span class="mf">40.06125658140474</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-5.91064453125</span><span class="p">,</span><span class="w"> </span><span class="mf">40.54720023441049</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-5.80078125</span><span class="p">,</span><span class="w"> </span><span class="mf">41.0130657870063</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-5.47119140625</span><span class="p">,</span><span class="w"> </span><span class="mf">41.32732632036622</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-5.053710937499999</span><span class="p">,</span><span class="w"> </span><span class="mf">41.47566020027821</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-4.306640625</span><span class="p">,</span><span class="w"> </span><span class="mf">41.52502957323801</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-3.603515625</span><span class="p">,</span><span class="w"> </span><span class="mf">41.44272637767212</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-2.96630859375</span><span class="p">,</span><span class="w"> </span><span class="mf">41.16211393939692</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-2.8125</span><span class="p">,</span><span class="w"> </span><span class="mf">40.81380923056958</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-3.14208984375</span><span class="p">,</span><span class="w"> </span><span class="mf">40.58058466412761</span><span class="p">],</span><span class="w">
+       </span><span class="p">[</span><span class="mf">-3.66943359375</span><span class="p">,</span><span class="w"> </span><span class="mf">40.896905775860006</span><span class="p">]]]}}],</span><span class="w">
+  </span><span class="err">'crs'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'type'</span><span class="p">:</span><span class="w"> </span><span class="err">'name'</span><span class="p">,</span><span class="w">
+   </span><span class="err">'properties'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'name'</span><span class="p">:</span><span class="w"> </span><span class="err">'urn</span><span class="p">:</span><span class="err">ogc</span><span class="p">:</span><span class="err">def</span><span class="p">:</span><span class="err">crs</span><span class="p">:</span><span class="err">OGC</span><span class="p">:</span><span class="mf">1.3</span><span class="p">:</span><span class="err">CRS</span><span class="mi">84</span><span class="err">'</span><span class="p">}}}}</span><span class="w">
+</span></code></pre>
+          <h1 id="query">Query</h1>
+
+<p>In order to retrieve data from the datasets it is possible to send queries to the API using the SQL or Feature Service languages.</p>
+
+<p>Two different endpoints are provided (under the dataset path and a generic one) and the sql query can be provided via query parameters or in the body of a POST request.</p>
+<pre class="highlight shell"><code>curl -i -H <span class="s1">'Authorization: Bearer your-token&gt;'</span> -H <span class="s1">'Content-Type: application/json'</span> -XPOST <span class="s1">'http://api.skydipper.com/v1/query/&lt;dataset_id&gt;/'</span> -d <span class="s1">'{
     "sql": "SELECT * FROM &lt;dataset_id&gt; limit 10"
 }
 '</span>
+</code></pre><pre class="highlight shell"><code>curl -i -XGET http<span class="se">\:</span>//api.skydipper.com/v1/query<span class="se">\?</span>sql<span class="se">\=</span>SELECT<span class="se">\ \*\ </span>from<span class="se">\ </span>&lt;dataset.slug&gt;
 </code></pre>
 <aside class="notice">
-blah thing
+While we aim to make our query interface as broad and transparent as possible, some of the querying options described 
+below will not be available for specific dataset providers, depending on this API&rsquo;s implementation or limitations on the
+actual data provider&rsquo;s side.
 </aside>
 
-<h2 id="blah">blah</h2>
+<h2 id="select-clause">Select clause</h2>
 
-<p>Text goes here.</p>
-<pre class="highlight shell"><code>curl -i -XGET http<span class="se">\:</span>//api.skydipper.com/v1/basemap/year/...
+<p>The <code class="prettyprint">SELECT</code> part of the queries supports naming columns, <strong>alias</strong>, <strong>math operations</strong>, <strong>DISTINCT</strong>, <strong>COUNT</strong>, <strong>SQL functions</strong> and <strong>PostGIS functions</strong></p>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+
+<span class="k">SELECT</span> <span class="k">sum</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="k">avg</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="k">max</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="k">min</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="k">min</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">as</span> <span class="n">minimum</span> <span class="k">FROM</span> <span class="k">table</span>
+
+<span class="k">SELECT</span> <span class="n">ST_valueCount</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
 </code></pre>
-          <h1 id="recent-imagery">Recent Imagery</h1>
+<h2 id="from-clause">From clause</h2>
 
-<h2 id="what-is-recent-imagery">What is Recent Imagery?</h2>
-
-<p>RI is blah.</p>
-
-<h2 id="call-recent-imagery">Call Recent Imagery</h2>
-
-<p>You can use it in</p>
-
-<blockquote>
-<p>To obtain a recent imagery, you have to do a POST query with the following body:</p>
-</blockquote>
-<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/geodescriber <span class="se">\</span>
--H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
- <span class="s1">'{
-   "geojson": &lt;yourGeoJSONObject&gt;
-  }'</span>
+<p>It is possible to refer to a dataset by using its <strong>table name</strong>, <strong>slug</strong> or <strong>id</strong>. </p>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="p">.</span><span class="n">tableName</span><span class="o">&gt;</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="p">.</span><span class="n">slug</span><span class="o">&gt;</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="o">&lt;</span><span class="n">dataset</span><span class="p">.</span><span class="n">id</span><span class="o">&gt;</span>
 </code></pre>
-<blockquote>
-<p>Real example</p>
-</blockquote>
-<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/geostore <span class="se">\</span>
--H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
- <span class="s1">'{
-   "geojson":{
-      "type":"FeatureCollection",
-      "features":[
-         {
-            "type":"Feature",
-            "properties":{
-
-            },
-            "geometry":{
-               "type":"LineString",
-               "coordinates":[
-                  [
-                     -3.9942169189453125,
-                     41.044922165782175
-                  ],
-                  [
-                     -3.995418548583985,
-                     41.03767166215326
-                  ],
-                  [
-                     -3.9842605590820312,
-                     41.03844854003296
-                  ],
-                  [
-                     -3.9844322204589844,
-                     41.04589315472392
-                  ],
-                  [
-                     -3.9942169189453125,
-                     41.044922165782175
-                  ]
-               ]
-            }
-         },
-         {
-            "type":"Feature",
-            "properties":{
-
-            },
-            "geometry":{
-               "type":"Polygon",
-               "coordinates":[
-                  [
-                     [
-                        -4.4549560546875,
-                        40.84706035607122
-                     ],
-                     [
-                        -4.4549560546875,
-                        41.30257109430557
-                     ],
-                     [
-                        -3.5211181640624996,
-                        41.30257109430557
-                     ],
-                     [
-                        -3.5211181640624996,
-                        40.84706035607122
-                     ],
-                     [
-                        -4.4549560546875,
-                        40.84706035607122
-                     ]
-                  ]
-               ]
-            }
-         }
-      ]
-   }
-}'</span>
+<h2 id="where-clause">Where clause</h2>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="mi">2</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">&lt;</span> <span class="mi">2</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">&gt;=</span> <span class="mi">2</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">and</span> <span class="n">b</span> <span class="o">&lt;</span> <span class="mi">2</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">text</span> <span class="k">like</span> <span class="s1">'a%'</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="n">st_intersects</span><span class="p">(</span><span class="n">st_setsrid</span><span class="p">(</span><span class="n">st_geomfromgeojson</span><span class="p">(</span><span class="s1">'{}'</span><span class="p">),</span> <span class="mi">4326</span><span class="p">),</span> <span class="n">the_geom</span><span class="p">)</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">WHERE</span> <span class="k">data</span> <span class="k">BETWEEN</span> <span class="mi">1</span> <span class="k">AND</span> <span class="mi">3</span>
 </code></pre>
-<p>The response will be 200 if the geostore saves correctly and returns the geostore object with all information:</p>
+<h2 id="group-by-clause">Group by clause</h2>
 
-<blockquote>
-<p>Example response</p>
-</blockquote>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-   </span><span class="s2">"data"</span><span class="p">:{</span><span class="w">
-      </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"geoStore"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"c9bacccfb9c3fe225dc67545bb93a5cb"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"attributes"</span><span class="p">:{</span><span class="w">
-         </span><span class="s2">"geojson"</span><span class="p">:{</span><span class="w">
-            </span><span class="s2">"features"</span><span class="p">:[</span><span class="w">
-               </span><span class="p">{</span><span class="w">
-                  </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"Feature"</span><span class="p">,</span><span class="w">
-                  </span><span class="s2">"geometry"</span><span class="p">:{</span><span class="w">
-                     </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"Polygon"</span><span class="p">,</span><span class="w">
-                     </span><span class="s2">"coordinates"</span><span class="p">:[</span><span class="w">
-                        </span><span class="p">[</span><span class="w">
-                           </span><span class="p">[</span><span class="w">
-                              </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
-                              </span><span class="mf">40.84706035607122</span><span class="w">
-                           </span><span class="p">],</span><span class="w">
-                           </span><span class="p">[</span><span class="w">
-                              </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
-                              </span><span class="mf">41.30257109430557</span><span class="w">
-                           </span><span class="p">],</span><span class="w">
-                           </span><span class="p">[</span><span class="w">
-                              </span><span class="mf">-3.5211181640624996</span><span class="p">,</span><span class="w">
-                              </span><span class="mf">41.30257109430557</span><span class="w">
-                           </span><span class="p">],</span><span class="w">
-                           </span><span class="p">[</span><span class="w">
-                              </span><span class="mf">-3.5211181640624996</span><span class="p">,</span><span class="w">
-                              </span><span class="mf">40.84706035607122</span><span class="w">
-                           </span><span class="p">],</span><span class="w">
-                           </span><span class="p">[</span><span class="w">
-                              </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
-                              </span><span class="mf">40.84706035607122</span><span class="w">
-                           </span><span class="p">]</span><span class="w">
-                        </span><span class="p">]</span><span class="w">
-                     </span><span class="p">]</span><span class="w">
-                  </span><span class="p">}</span><span class="w">
-               </span><span class="p">}</span><span class="w">
-            </span><span class="p">],</span><span class="w">
-            </span><span class="s2">"crs"</span><span class="p">:{</span><span class="w">
+<p>It is possible to group results by <strong>column name</strong>, <strong>SQL functions</strong> and <strong>PostGIS functions</strong>.
+Special grouping operations are available for document-type datasets (CSV and JSON) - see <a href="https://github.com/NLPchina/elasticsearch-sql/tree/5.5.2.0#beyond-sql">this link</a> for more info.</p>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">columnOne</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">columnOne</span><span class="p">,</span> <span class="n">columnTwo</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">ST_GeoHash</span><span class="p">(</span><span class="n">the_geom_point</span><span class="p">,</span><span class="mi">8</span><span class="p">)</span>
 
-            </span><span class="p">},</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"FeatureCollection"</span><span class="w">
-         </span><span class="p">},</span><span class="w">
-         </span><span class="s2">"hash"</span><span class="p">:</span><span class="s2">"c9bacccfb9c3fe225dc67545bb93a5cb"</span><span class="p">,</span><span class="w">
-         </span><span class="s2">"provider"</span><span class="p">:{</span><span class="w">
+<span class="k">SELECT</span> <span class="n">a</span><span class="p">,</span> <span class="k">count</span><span class="p">(</span><span class="n">int</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">a</span>
+<span class="k">SELECT</span> <span class="k">count</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">ST_GeoHash</span><span class="p">(</span><span class="n">the_geom</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+</code></pre><pre class="highlight sql"><code><span class="cm">/* Only supported in document-type datasets - see https://github.com/NLPchina/elasticsearch-sql/tree/5.5.2.0#beyond-sql for full details */</span>
+<span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="n">age</span><span class="p">)</span> <span class="k">FROM</span> <span class="n">tablename</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">range</span><span class="p">(</span><span class="n">age</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">35</span><span class="p">,</span><span class="mi">40</span><span class="p">)</span> 
+<span class="k">SELECT</span> <span class="n">online</span> <span class="k">FROM</span> <span class="n">online</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">date_histogram</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">'insert_time'</span><span class="p">,</span><span class="s1">'interval'</span><span class="o">=</span><span class="s1">'1d'</span><span class="p">)</span>
+<span class="k">SELECT</span> <span class="n">online</span> <span class="k">FROM</span> <span class="n">online</span> <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">date_range</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s1">'insert_time'</span><span class="p">,</span><span class="s1">'format'</span><span class="o">=</span><span class="s1">'yyyy-MM-dd'</span> <span class="p">,</span><span class="s1">'2014-08-18'</span><span class="p">,</span><span class="s1">'2014-08-17'</span><span class="p">,</span><span class="s1">'now-8d'</span><span class="p">,</span><span class="s1">'now-7d'</span><span class="p">,</span><span class="s1">'now-6d'</span><span class="p">,</span><span class="s1">'now'</span><span class="p">)</span>
+</code></pre>
+<h2 id="order-by-clause">Order by clause</h2>
 
-         </span><span class="p">},</span><span class="w">
-         </span><span class="s2">"areaHa"</span><span class="p">:</span><span class="mf">397372.34122605197</span><span class="p">,</span><span class="w">
-         </span><span class="s2">"bbox"</span><span class="p">:[</span><span class="w">
-            </span><span class="mf">-4.4549560546875</span><span class="p">,</span><span class="w">
-            </span><span class="mf">40.84706035607122</span><span class="p">,</span><span class="w">
-            </span><span class="mf">-3.5211181640624996</span><span class="p">,</span><span class="w">
-            </span><span class="mf">41.30257109430557</span><span class="w">
-         </span><span class="p">]</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-   </span><span class="p">}</span><span class="w">
+<p>It is possible to order results by <strong>column name</strong>, <strong>SQL functions</strong> and <strong>PostGIS functions</strong></p>
+
+<h2 id="limit-and-offset-clause">Limit and offset clause</h2>
+
+<p>You can specify <code class="prettyprint">limit</code> and <code class="prettyprint">offset</code> clauses</p>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">limit</span><span class="o">=</span><span class="mi">20</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="k">table</span> <span class="k">limit</span><span class="o">=</span><span class="mi">20</span> <span class="k">offset</span> <span class="mi">10</span>
+</code></pre>
+<h2 id="raster-queries-available">Raster queries available</h2>
+<pre class="highlight sql"><code><span class="k">SELECT</span> <span class="n">ST_METADATA</span><span class="p">(</span><span class="n">rast</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">ST_BANDMETADATA</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="n">occurrence</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">ST_SUMMARYSTATS</span><span class="p">()</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">ST_HISTOGRAM</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">auto</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+<span class="k">SELECT</span> <span class="n">ST_valueCount</span><span class="p">(</span><span class="n">rast</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span> <span class="k">FROM</span> <span class="k">table</span>
+</code></pre>
+<h2 id="freeze-query">Freeze query</h2>
+
+<p>It is possible generate a json file in a bucket of the sql result. You only need send a query param freeze with value true and you will obtain the url of the json file.</p>
+
+<aside class="notice">
+    This is an authenticated feature!
+</aside>
+<pre class="highlight shell"><code>curl -i -XGET http<span class="se">\:</span>//api.skydipper.com/v1/query<span class="se">\?</span>sql<span class="se">\=</span>SELECT<span class="se">\ \*\ </span>from<span class="se">\ </span>&lt;dataset.slug&gt;&amp;freeze<span class="o">=</span><span class="nb">true</span>
+</code></pre>
+<h2 id="download">Download</h2>
+
+<p>You can download the result of a query using the <code class="prettyprint">download</code> endpoint. </p>
+
+<aside class="warning">
+    <ul>
+    This endpoint is not neccesarily supported for all dataset providers. The following dataset connector provide support for downloads:
+        <li>Google Earth Engine</li>
+        <li>Carto</li>
+        <li>ArcGIS FeatureService</li>
+    </ul>
+</aside>
+<pre class="highlight shell"><code><span class="c"># The id of the dataset is part of the URL</span>
+curl -XGET https://api.skydipper.com/v1/download/&lt;dataset.id&gt;?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.tableName&gt;
+
+<span class="c"># The id of the dataset is in the FROM clause</span>
+curl -XGET https://api.skydipper.com/v1/download?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.id&gt;
+</code></pre>
+<p>There are two ways to call it:</p>
+
+<ul>
+<li>you can either specify the id of the dataset in the URL</li>
+<li>or you can pass it as part of the SQL query (in the FROM clause)</li>
+</ul>
+
+<p>You can also specify which file type you want to download (JSON or CSV), except for Google Earth Engine datasets (only JSON).</p>
+
+<aside class="notice">
+    By default, the API will return a CSV file (JSON file for Google Earth Engine).
+</aside>
+<pre class="highlight shell"><code><span class="c"># The format is explicitly set</span>
+curl -XGET https://api.skydipper.com/v1/download/&lt;dataset.id&gt;?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.tableName&gt;&amp;format<span class="o">=</span>json
+curl -XGET https://api.skydipper.com/v1/download/&lt;dataset.id&gt;?sql<span class="o">=</span>SELECT <span class="k">*</span> from &lt;dataset.tableName&gt;&amp;format<span class="o">=</span>csv
+</code></pre>
+          <h1 id="recentimagery">RecentImagery</h1>
+
+<p>Service for identifying satellite imagery tiles from Landsat and Sentinel-2.
+You are able to search for a location, and time range, and set band visulisation parameters.</p>
+
+<h2 id="return-a-list-of-all-intersecting-satellite-images">Return a list of all intersecting satellite images</h2>
+<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="n">url</span><span class="o">=</span><span class="n">f</span><span class="s">"http://api.skydipper.com/v1/recent-imagery"</span>
+<span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">"lat"</span><span class="p">:</span><span class="mf">28.399391877577933</span><span class="p">,</span>
+        <span class="s">"lon"</span><span class="p">:</span><span class="o">-</span><span class="mf">16.493425662438167</span><span class="p">,</span>
+        <span class="s">"start"</span><span class="p">:</span><span class="s">"2019-11-1"</span><span class="p">,</span>
+        <span class="s">"end"</span><span class="p">:</span><span class="s">"2019-11-22"</span><span class="p">,</span>
+        <span class="s">"bands"</span><span class="p">:</span><span class="bp">None</span><span class="p">}</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span><span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+</code></pre>
+<p>Returns a response like:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="err">'data'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'id'</span><span class="p">:</span><span class="w"> </span><span class="err">None</span><span class="p">,</span><span class="w">
+  </span><span class="err">'tiles'</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="err">'attributes'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'bbox'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'geometry'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'coordinates'</span><span class="p">:</span><span class="w"> </span><span class="p">[[</span><span class="mf">-15.92558389724579</span><span class="p">,</span><span class="w">
+         </span><span class="mf">28.925190549257714</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-15.92559671449868</span><span class="p">,</span><span class="w"> </span><span class="mf">28.925191163600214</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-17.051433713664156</span><span class="p">,</span><span class="w"> </span><span class="mf">28.91274387174152</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-17.051480391568088</span><span class="p">,</span><span class="w"> </span><span class="mf">28.912706620290745</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-17.051531935518994</span><span class="p">,</span><span class="w"> </span><span class="mf">28.912674682697084</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-17.05153490920881</span><span class="p">,</span><span class="w"> </span><span class="mf">28.91265990682834</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-17.041910802259004</span><span class="p">,</span><span class="w"> </span><span class="mf">28.41750963441286</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-17.032527124641494</span><span class="p">,</span><span class="w"> </span><span class="mf">27.922327989157285</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-17.03248495569906</span><span class="p">,</span><span class="w"> </span><span class="mf">27.922287141116684</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-17.032448913873885</span><span class="p">,</span><span class="w"> </span><span class="mf">27.92224196307347</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-17.0324320643225</span><span class="p">,</span><span class="w"> </span><span class="mf">27.922239418847433</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-15.917013741784361</span><span class="p">,</span><span class="w"> </span><span class="mf">27.934185520299348</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-15.916967046088413</span><span class="p">,</span><span class="w"> </span><span class="mf">27.93422235347645</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-15.91691560017191</span><span class="p">,</span><span class="w"> </span><span class="mf">27.934253830965012</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-15.916912552853256</span><span class="p">,</span><span class="w"> </span><span class="mf">27.93426863344697</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-15.921148642190191</span><span class="p">,</span><span class="w"> </span><span class="mf">28.429707339526168</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-15.925493100926781</span><span class="p">,</span><span class="w"> </span><span class="mf">28.92510186499591</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-15.925535317176289</span><span class="p">,</span><span class="w"> </span><span class="mf">28.925143044864797</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-15.925571259256028</span><span class="p">,</span><span class="w"> </span><span class="mf">28.925188529207674</span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="mf">-15.92558389724579</span><span class="p">,</span><span class="w"> </span><span class="mf">28.925190549257714</span><span class="p">]],</span><span class="w">
+       </span><span class="err">'type'</span><span class="p">:</span><span class="w"> </span><span class="err">'Polygon'</span><span class="p">}},</span><span class="w">
+     </span><span class="err">'cloud_score'</span><span class="p">:</span><span class="w"> </span><span class="mf">57.3898</span><span class="p">,</span><span class="w">
+     </span><span class="err">'date_time'</span><span class="p">:</span><span class="w"> </span><span class="err">'</span><span class="mi">2019-11-17</span><span class="w"> </span><span class="mi">11</span><span class="p">:</span><span class="mi">52</span><span class="p">:</span><span class="mi">21</span><span class="err">Z'</span><span class="p">,</span><span class="w">
+     </span><span class="err">'instrument'</span><span class="p">:</span><span class="w"> </span><span class="err">'Sentinel</span><span class="mi">-2</span><span class="err">A'</span><span class="p">,</span><span class="w">
+     </span><span class="err">'source'</span><span class="p">:</span><span class="w"> </span><span class="err">'COPERNICUS/S</span><span class="mi">2</span><span class="err">/</span><span class="mi">20191117</span><span class="err">T</span><span class="mi">115221</span><span class="err">_</span><span class="mi">20191117</span><span class="err">T</span><span class="mi">115220</span><span class="err">_T</span><span class="mi">28</span><span class="err">RCS'</span><span class="p">,</span><span class="w">
+     </span><span class="err">'thumbnail_url'</span><span class="p">:</span><span class="w"> </span><span class="err">None</span><span class="p">,</span><span class="w">
+     </span><span class="err">'tile_url'</span><span class="p">:</span><span class="w"> </span><span class="err">'https</span><span class="p">:</span><span class="err">//earthengine.googleapis.com/map/</span><span class="mi">6</span><span class="err">c</span><span class="mi">4</span><span class="err">d</span><span class="mi">08</span><span class="err">f</span><span class="mi">0</span><span class="err">e</span><span class="mi">527</span><span class="err">f</span><span class="mi">62</span><span class="err">e</span><span class="mi">97</span><span class="err">d</span><span class="mi">85</span><span class="err">a</span><span class="mi">92</span><span class="err">c</span><span class="mi">5</span><span class="err">c</span><span class="mi">181</span><span class="err">bc/</span><span class="p">{</span><span class="err">z</span><span class="p">}</span><span class="err">/</span><span class="p">{</span><span class="err">x</span><span class="p">}</span><span class="err">/</span><span class="p">{</span><span class="err">y</span><span class="p">}</span><span class="err">?token=</span><span class="mi">733263</span><span class="err">c</span><span class="mi">1</span><span class="err">e</span><span class="mi">4925</span><span class="err">c</span><span class="mi">385702</span><span class="err">d</span><span class="mi">2</span><span class="err">a</span><span class="mi">18</span><span class="err">f</span><span class="mi">2</span><span class="err">e</span><span class="mi">39</span><span class="err">a</span><span class="mi">6</span><span class="err">'</span><span class="w">
+     </span><span class="p">}}]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-          <h1 id="composite-imagery">Composite Imagery</h1>
+<h2 id="request-tiles">Request tiles</h2>
 
-<h2 id="what-is-the-composite-imagery-service">What is the Composite Imagery service?</h2>
-
-<p>CI is blah.</p>
-
-<h2 id="call-the-composite-imagery-service">Call the Composite Imagery Service</h2>
-
-<p>You can use it in</p>
-
-<blockquote>
-<p>To obtain a recent imagery, you have to do a POST query with the following body:</p>
-</blockquote>
-<pre class="highlight shell"><code>curl -X POST https://api.skydipper.com/v1/geodescriber <span class="se">\</span>
--H <span class="s2">"Content-Type: application/json"</span>  -d <span class="se">\</span>
- <span class="s1">'{
-   "geojson": &lt;yourGeoJSONObject&gt;
-  }'</span>
+<p>You can use the response from the query to <code class="prettyprint">/recent-imagery</code> to make a further request to <code class="prettyprint">tiles</code> and <code class="prettyprint">thumbs</code> endpoints.</p>
+<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="n">tiles_url</span> <span class="o">=</span> <span class="s">"http://api.skydipper.com/v1/recent-imagery/tiles"</span>
+<span class="n">body</span><span class="o">=</span><span class="p">{</span><span class="s">"source_data"</span><span class="p">:</span> <span class="p">[{</span><span class="s">"source"</span><span class="p">:</span><span class="s">'COPERNICUS/S2/20191107T115221_20191107T115221_T28RCS'</span><span class="p">},{</span><span class="s">"source"</span><span class="p">:</span><span class="s">'LANDSAT/LC08/C01/T1_RT_TOA/LC08_207040_20191117'</span><span class="p">}],</span>
+            <span class="s">"min"</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">"max"</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">"opacity"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s">"bands"</span><span class="p">:</span> <span class="bp">None</span><span class="p">}</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">tiles_url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
 </code></pre>
-<h2 id="obtaining-dem-data">Obtaining DEM data</h2>
-
-<p>You can get Digital Elevation Model data for your service by&hellip;</p>
-
+<p>Which will result in a response such as:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="err">'data'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'attributes'</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="err">'source_id'</span><span class="p">:</span><span class="w"> </span><span class="err">'COPERNICUS/S</span><span class="mi">2</span><span class="err">/</span><span class="mi">20191107</span><span class="err">T</span><span class="mi">115221</span><span class="err">_</span><span class="mi">20191107</span><span class="err">T</span><span class="mi">115221</span><span class="err">_T</span><span class="mi">28</span><span class="err">RCS'</span><span class="p">,</span><span class="w">
+    </span><span class="err">'tile_url'</span><span class="p">:</span><span class="w"> </span><span class="err">'https</span><span class="p">:</span><span class="err">//earthengine.googleapis.com/map/d</span><span class="mi">58</span><span class="err">d</span><span class="mi">121</span><span class="err">e</span><span class="mi">0</span><span class="err">a</span><span class="mi">14</span><span class="err">ccf</span><span class="mi">17</span><span class="err">bb</span><span class="mi">3</span><span class="err">fa</span><span class="mi">08</span><span class="err">af</span><span class="mi">87</span><span class="err">bb</span><span class="mi">73</span><span class="err">/</span><span class="p">{</span><span class="err">z</span><span class="p">}</span><span class="err">/</span><span class="p">{</span><span class="err">x</span><span class="p">}</span><span class="err">/</span><span class="p">{</span><span class="err">y</span><span class="p">}</span><span class="err">?token=</span><span class="mi">3</span><span class="err">fb</span><span class="mi">09853</span><span class="err">e</span><span class="mi">976</span><span class="err">ad</span><span class="mi">45</span><span class="err">cfc</span><span class="mi">4</span><span class="err">b</span><span class="mi">3</span><span class="err">dc</span><span class="mi">267</span><span class="err">f</span><span class="mi">455</span><span class="err">a'</span><span class="p">},</span><span class="w">
+   </span><span class="p">{</span><span class="err">'source_id'</span><span class="p">:</span><span class="w"> </span><span class="err">'LANDSAT/LC</span><span class="mi">08</span><span class="err">/C</span><span class="mi">01</span><span class="err">/T</span><span class="mi">1</span><span class="err">_RT_TOA/LC</span><span class="mi">08</span><span class="err">_</span><span class="mi">207040</span><span class="err">_</span><span class="mi">20191117</span><span class="err">'</span><span class="p">,</span><span class="w">
+    </span><span class="err">'tile_url'</span><span class="p">:</span><span class="w"> </span><span class="err">'https</span><span class="p">:</span><span class="err">//earthengine.googleapis.com/map/</span><span class="mi">277080042</span><span class="err">a</span><span class="mi">8</span><span class="err">a</span><span class="mi">4</span><span class="err">c</span><span class="mi">5481346</span><span class="err">a</span><span class="mi">3</span><span class="err">f</span><span class="mi">341</span><span class="err">ed</span><span class="mi">01</span><span class="err">a/</span><span class="p">{</span><span class="err">z</span><span class="p">}</span><span class="err">/</span><span class="p">{</span><span class="err">x</span><span class="p">}</span><span class="err">/</span><span class="p">{</span><span class="err">y</span><span class="p">}</span><span class="err">?token=</span><span class="mi">613</span><span class="err">fe</span><span class="mi">7</span><span class="err">ab</span><span class="mi">781</span><span class="err">cde</span><span class="mi">1</span><span class="err">fbca</span><span class="mi">1</span><span class="err">e</span><span class="mi">1</span><span class="err">b</span><span class="mi">242</span><span class="err">c</span><span class="mi">508</span><span class="err">aa'</span><span class="p">}],</span><span class="w">
+  </span><span class="err">'id'</span><span class="p">:</span><span class="w"> </span><span class="err">None</span><span class="p">,</span><span class="w">
+  </span><span class="err">'type'</span><span class="p">:</span><span class="w"> </span><span class="err">'recentimages-tiles'</span><span class="p">}}</span><span class="w">
+</span></code></pre>
+<h2 id="request-thumbnails">Request thumbnails</h2>
+<pre class="highlight python"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="n">tiles_url</span> <span class="o">=</span> <span class="s">"http://api.skydipper.com/v1/recent-imagery/thumbs"</span>
+<span class="n">body</span><span class="o">=</span><span class="p">{</span><span class="s">"source_data"</span><span class="p">:</span> <span class="p">[{</span><span class="s">"source"</span><span class="p">:</span><span class="s">'COPERNICUS/S2/20191107T115221_20191107T115221_T28RCS'</span><span class="p">},{</span><span class="s">'source'</span><span class="p">:</span> <span class="s">'COPERNICUS/S2/20191117T115221_20191117T115220_T28RCS'</span><span class="p">},</span> <span class="p">{</span><span class="s">"source"</span><span class="p">:</span><span class="s">'LANDSAT/LC08/C01/T1_RT_TOA/LC08_207040_20191117'</span><span class="p">}],</span>
+            <span class="s">"min"</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">"max"</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+            <span class="s">"opacity"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s">"bands"</span><span class="p">:</span> <span class="bp">None</span><span class="p">}</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">tiles_url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">body</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+</code></pre><pre class="highlight json"><code><span class="p">{</span><span class="err">'data'</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'attributes'</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="err">'source'</span><span class="p">:</span><span class="w"> </span><span class="err">'COPERNICUS/S</span><span class="mi">2</span><span class="err">/</span><span class="mi">20191107</span><span class="err">T</span><span class="mi">115221</span><span class="err">_</span><span class="mi">20191107</span><span class="err">T</span><span class="mi">115221</span><span class="err">_T</span><span class="mi">28</span><span class="err">RCS'</span><span class="p">,</span><span class="w">
+    </span><span class="err">'thumbnail_url'</span><span class="p">:</span><span class="w"> </span><span class="err">'https</span><span class="p">:</span><span class="err">//earthengine.googleapis.com/api/thumb?thumbid=ba</span><span class="mi">7</span><span class="err">e</span><span class="mi">8</span><span class="err">eb</span><span class="mi">6</span><span class="err">d</span><span class="mi">9606</span><span class="err">ad</span><span class="mi">6191402148</span><span class="err">fc</span><span class="mi">2</span><span class="err">e</span><span class="mi">4</span><span class="err">dd&amp;token=d</span><span class="mi">732</span><span class="err">ad</span><span class="mi">356760313627096</span><span class="err">ed</span><span class="mi">9888944</span><span class="err">f</span><span class="mi">4</span><span class="err">'</span><span class="p">},</span><span class="w">
+   </span><span class="p">{</span><span class="err">'source'</span><span class="p">:</span><span class="w"> </span><span class="err">'COPERNICUS/S</span><span class="mi">2</span><span class="err">/</span><span class="mi">20191117</span><span class="err">T</span><span class="mi">115221</span><span class="err">_</span><span class="mi">20191117</span><span class="err">T</span><span class="mi">115220</span><span class="err">_T</span><span class="mi">28</span><span class="err">RCS'</span><span class="p">,</span><span class="w">
+    </span><span class="err">'thumbnail_url'</span><span class="p">:</span><span class="w"> </span><span class="err">'https</span><span class="p">:</span><span class="err">//earthengine.googleapis.com/api/thumb?thumbid=caa</span><span class="mi">55</span><span class="err">e</span><span class="mi">2</span><span class="err">a</span><span class="mi">982081</span><span class="err">b</span><span class="mi">793</span><span class="err">c</span><span class="mi">99</span><span class="err">dc</span><span class="mi">95</span><span class="err">a</span><span class="mi">7</span><span class="err">ca</span><span class="mi">3</span><span class="err">d</span><span class="mi">5</span><span class="err">&amp;token=</span><span class="mi">943827</span><span class="err">c</span><span class="mi">8075</span><span class="err">eb</span><span class="mi">9</span><span class="err">b</span><span class="mi">3960</span><span class="err">bf</span><span class="mi">95</span><span class="err">ee</span><span class="mi">304</span><span class="err">b</span><span class="mi">57</span><span class="err">a'</span><span class="p">},</span><span class="w">
+   </span><span class="p">{</span><span class="err">'source'</span><span class="p">:</span><span class="w"> </span><span class="err">'LANDSAT/LC</span><span class="mi">08</span><span class="err">/C</span><span class="mi">01</span><span class="err">/T</span><span class="mi">1</span><span class="err">_RT_TOA/LC</span><span class="mi">08</span><span class="err">_</span><span class="mi">207040</span><span class="err">_</span><span class="mi">20191117</span><span class="err">'</span><span class="p">,</span><span class="w">
+    </span><span class="err">'thumbnail_url'</span><span class="p">:</span><span class="w"> </span><span class="err">'https</span><span class="p">:</span><span class="err">//earthengine.googleapis.com/api/thumb?thumbid=</span><span class="mi">8</span><span class="err">af</span><span class="mi">65</span><span class="err">bde</span><span class="mi">5696</span><span class="err">bd</span><span class="mi">2189</span><span class="err">a</span><span class="mi">225</span><span class="err">a</span><span class="mi">7</span><span class="err">dff</span><span class="mi">5</span><span class="err">d</span><span class="mi">346</span><span class="err">&amp;token=</span><span class="mi">6087176665</span><span class="err">a</span><span class="mi">1</span><span class="err">bbbe</span><span class="mi">72604</span><span class="err">b</span><span class="mi">810</span><span class="err">f</span><span class="mi">72</span><span class="err">f</span><span class="mi">308</span><span class="err">'</span><span class="p">}],</span><span class="w">
+  </span><span class="err">'id'</span><span class="p">:</span><span class="w"> </span><span class="err">None</span><span class="p">,</span><span class="w">
+  </span><span class="err">'type'</span><span class="p">:</span><span class="w"> </span><span class="err">'recentimages-thumbs'</span><span class="p">}}</span><span class="w">
+</span></code></pre>
           <h1 id="user-management">User Management</h1>
 
 <p>The following endpoints expose the API&rsquo;s functionality regarding user management.
@@ -2997,80 +3154,6 @@ curl -X DELETE http://api.skydipper.com/auth/user/&lt;user_id&gt;
     ...
 }'</span>
 </code></pre>
-          <h1 id="microservices">Microservices</h1>
-
-<p>A list of information related to the microservices</p>
-
-<aside class="notice">
-    These services are only available to ADMIN users.
-</aside>
-
-<h2 id="list-all-registered-microservices">List all registered microservices</h2>
-
-<p>To obtain a list of all the registered microservices:</p>
-<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/api/v1/microservice <span class="se">\</span>
--H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
-</code></pre>
-<blockquote>
-<p>Example response:</p>
-</blockquote>
-<pre class="highlight json"><code><span class="p">[</span><span class="w">
-    </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"infoStatus"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"numRetries"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"error"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"lastCheck"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-02-04T14:05:30.748Z"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"pathInfo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/info"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"pathLive"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/ping"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"active"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"cache"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-        </span><span class="s2">"uncache"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"dataset"</span><span class="p">],</span><span class="w">
-        </span><span class="s2">"tags"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-            </span><span class="s2">"dataset"</span><span class="w">
-
-        </span><span class="p">],</span><span class="w">
-        </span><span class="s2">"_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"id"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Dataset"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://dataset.default.svc.cluster.local:3000"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"version"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"endpoints"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-            </span><span class="p">{</span><span class="w">
-                </span><span class="s2">"redirect"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                    </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="p">,</span><span class="w">
-                    </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/v1/dataset"</span><span class="w">
-                </span><span class="p">},</span><span class="w">
-                </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/dataset"</span><span class="p">,</span><span class="w">
-                </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GET"</span><span class="w">
-            </span><span class="p">},</span><span class="w">
-            </span><span class="p">{</span><span class="w">
-                </span><span class="s2">"redirect"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                    </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="p">,</span><span class="w">
-                    </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/v1/dataset/find-by-ids"</span><span class="w">
-                </span><span class="p">},</span><span class="w">
-                </span><span class="s2">"path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/v1/dataset/find-by-ids"</span><span class="p">,</span><span class="w">
-                </span><span class="s2">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"POST"</span><span class="w">
-            </span><span class="p">},</span><span class="w">
-            </span><span class="err">...</span><span class="w">
-        </span><span class="p">],</span><span class="w">
-        </span><span class="s2">"updatedAt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2019-01-24T13:04:46.728Z"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"swagger"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{}"</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="err">...</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-<h2 id="delete-microservice">Delete microservice</h2>
-
-<p>To remove a microservice:</p>
-<pre class="highlight shell"><code>curl -X DELETE https://api.skydipper.com/api/v1/microservice/:id <span class="se">\</span>
--H <span class="s2">"Authorization: Bearer &lt;your-token&gt;"</span>
-</code></pre>
-<h4 id="notes">Notes</h4>
-
-<p>Keep in mind that this does not actually delete the microservice, instead it schedules it for being removed. 
-There&rsquo;s a cron task that does the actual deleting, so the process is async.</p>
-
           <h1 id="errors">Errors</h1>
 
 <p>The Skydipper API uses the following error codes:</p>
