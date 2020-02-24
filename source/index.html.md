@@ -13,7 +13,6 @@ includes:
   - api/basemaps
   - api/composite
   - api/dataset
-  - api/fields
   - api/layer
   - api/metadata
   - api/microservices
