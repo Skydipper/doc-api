@@ -835,51 +835,6 @@ Deleting a dataset removes it permanently! It is recommended that you save a loc
     This is an authenticated endpoint!
 </aside>
 
-          <h1 id="fields">Fields</h1>
-
-<h2 id="what-are-fields">What are fields?</h2>
-
-<p>Fields can be defined as the dataset properties. These fields are automatically generated when a dataset is created.</p>
-
-<h2 id="how-to-get-the-dataset-fields">How to get the dataset fields</h2>
-
-<p>Once the dataset is properly created and saved, it is possible to access to its fields as well as getting some information about them.</p>
-
-<p>To do that, it is necessary to use of the following endpoint:</p>
-<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/fields/&lt;dataset-id&gt;
-</code></pre>
-<blockquote>
-<p>Real example</p>
-</blockquote>
-<pre class="highlight shell"><code>curl -X GET https://api.skydipper.com/v1/fields/1170030b-9725-4bfe-8fb4-1b0eb81020d2
-</code></pre>
-<blockquote>
-<p>Response</p>
-</blockquote>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="s2">"tableName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"public.cait_2_0_country_ghg_emissions_toplow2011"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"fields"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="s2">"cartodb_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"number"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"the_geom"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"geometry"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"the_geom_webmercator"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"geometry"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"x"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"y"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"number"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="s2">"z"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="s2">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="w">
-        </span><span class="p">}</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
           <h1 id="layer">Layer</h1>
 
 <h2 id="what-is-a-layer">What is a Layer?</h2>
